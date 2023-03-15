@@ -1,0 +1,75 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.appolica",
+    "module": "interactive-info-window-android",
+    "version": "1.1.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "6.7.1",
+      "buildId": "zyj3olk2ybhfzgtlb3dq27yn7m"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "interactive-info-window-android-1.1.0.aar",
+          "url": "interactive-info-window-android-1.1.0.aar",
+          "size": 51599,
+          "sha512": "c85a59d60e7bc84a22b7e1150cd039e13caf69b15b314ab225a3a447622252b4bc4cc40b083758eef827dbb765c1cac45b7f784eca3b002b891736750c48ae76",
+          "sha256": "56a569d57baf115e661b7de7f07ad2a3fd8c051b85f32d8eb535a544b4d395d5",
+          "sha1": "28e36753177d65432efcff6be9150bfb61c75d41",
+          "md5": "217e219366a78efccb36b9222a40a2da"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.3.0"
+          }
+        },
+        {
+          "group": "com.google.android.gms",
+          "module": "play-services-maps",
+          "version": {
+            "requires": "17.0.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "interactive-info-window-android-1.1.0.aar",
+          "url": "interactive-info-window-android-1.1.0.aar",
+          "size": 51599,
+          "sha512": "c85a59d60e7bc84a22b7e1150cd039e13caf69b15b314ab225a3a447622252b4bc4cc40b083758eef827dbb765c1cac45b7f784eca3b002b891736750c48ae76",
+          "sha256": "56a569d57baf115e661b7de7f07ad2a3fd8c051b85f32d8eb535a544b4d395d5",
+          "sha1": "28e36753177d65432efcff6be9150bfb61c75d41",
+          "md5": "217e219366a78efccb36b9222a40a2da"
+        }
+      ]
+    }
+  ]
+}

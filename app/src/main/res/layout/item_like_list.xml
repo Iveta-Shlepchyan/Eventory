@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/eventCard"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="@drawable/selector_card"
+    android:visibility="visible"
+    android:layout_marginTop="14dp"
+    app:contentPadding="10dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        app:cardBackgroundColor="@color/eerie_black"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <ImageView
+            android:id="@+id/eventImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center"
+            android:scaleType="fitXY" />
+
+
+
+    </androidx.cardview.widget.CardView>
+
+
+    <ImageButton
+        android:id="@+id/likeBtn"
+        android:layout_width="27dp"
+        android:layout_height="26dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/ic_heart_card_pressed"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/eventName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="160dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/manrope_semibold"
+        android:maxLines="1"
+        android:text="Name"
+        android:textColor="@color/text_black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/eventCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventCard" />
+
+    <TextView
+        android:id="@+id/eventDateTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="160dp"
+        android:layout_marginRight="45dp"
+        android:fontFamily="@font/manrope_medium"
+        android:maxLines="1"
+        android:text="nearest date/time"
+        app:layout_constraintEnd_toEndOf="@+id/eventName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventName" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="160dp"
+        android:layout_marginTop="70dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/eventMinPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/red_orange"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/eventPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:fontFamily="@font/manrope_medium"
+            android:maxLines="1"
+            android:text="place"
+            app:layout_constraintEnd_toEndOf="@+id/eventName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/eventName" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

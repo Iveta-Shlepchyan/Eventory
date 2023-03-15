@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "533532109720",
+    "project_id": "eventoryauth",
+    "storage_bucket": "eventoryauth.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533532109720:android:bd0a1434c33f83463b59ed",
+        "android_client_info": {
+          "package_name": "com.example.eventory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "533532109720-gtesokg999puel7c8tvpa6dnhk3b28h5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMptgFgW9CPDcjuv5D2h-VPi1-adEydzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "533532109720-gtesokg999puel7c8tvpa6dnhk3b28h5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

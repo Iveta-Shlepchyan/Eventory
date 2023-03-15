@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/navigation_home_selector"
+        android:title="" />
+    <item
+        android:id="@+id/map"
+        android:icon="@drawable/navigation_map_selector"
+        android:title=""/>
+    <item
+        android:id="@+id/like"
+        android:icon="@drawable/navigation_heart_selector"
+        android:title="" />
+    <item
+        android:id="@+id/ticket"
+        android:icon="@drawable/navigation_ticket_selector"
+        android:title="" />
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/navigation_profile_selector"
+        android:title="" />
+</menu>

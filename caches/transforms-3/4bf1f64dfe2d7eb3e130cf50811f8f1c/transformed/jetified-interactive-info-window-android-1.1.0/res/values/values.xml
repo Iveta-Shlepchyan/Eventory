@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="info_window_height">120dp</dimen>
+    <dimen name="info_window_width">100dp</dimen>
+    <item name="infoWindowContainer1" type="id"/>
+    <item name="infoWindowContainer2" type="id"/>
+    <string name="app_name">InteractiveInfoWindowAndroid</string>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+</resources>

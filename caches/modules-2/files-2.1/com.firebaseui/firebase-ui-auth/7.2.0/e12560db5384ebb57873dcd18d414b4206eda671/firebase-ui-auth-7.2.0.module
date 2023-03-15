@@ -1,0 +1,159 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.firebaseui",
+    "module": "firebase-ui-auth",
+    "version": "7.2.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "6.8.3",
+      "buildId": "77musdrrkzcdbknhwgrgpk4aye"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.google.firebase",
+          "module": "firebase-auth"
+        },
+        {
+          "group": "com.google.android.gms",
+          "module": "play-services-auth",
+          "version": {
+            "requires": "19.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "firebase-ui-auth-7.2.0.aar",
+          "url": "firebase-ui-auth-7.2.0.aar",
+          "size": 682984,
+          "sha512": "13f1ed65d16940a40347f810703d82a70b75e3a20ae9d6c478c3403d6ddcc6ec27492afbe35811805813b4e71731fe6d975189155bd7d1eaff5e5f65e54a232d",
+          "sha256": "025ec854127fbf8623b37bed467b899c3a1b1b54db35871b6bb19301a830659b",
+          "sha1": "43603ac2c9701d7bcb86fcacb557ea75371c6b95",
+          "md5": "06aed39218773ab8374e5388b6cd7194"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.activity",
+          "module": "activity",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment",
+          "version": {
+            "requires": "1.3.0"
+          }
+        },
+        {
+          "group": "com.google.android.material",
+          "module": "material",
+          "version": {
+            "requires": "1.2.1"
+          }
+        },
+        {
+          "group": "androidx.browser",
+          "module": "browser",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.constraintlayout",
+          "module": "constraintlayout",
+          "version": {
+            "requires": "2.0.4"
+          }
+        },
+        {
+          "group": "me.zhanghai.android.materialprogressbar",
+          "module": "library",
+          "version": {
+            "requires": "1.6.1"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-extensions",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "com.google.firebase",
+          "module": "firebase-bom",
+          "version": {
+            "requires": "26.8.0"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "androidx.legacy",
+          "module": "legacy-support-v4",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.cardview",
+          "module": "cardview",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "com.google.firebase",
+          "module": "firebase-auth"
+        },
+        {
+          "group": "com.google.android.gms",
+          "module": "play-services-auth",
+          "version": {
+            "requires": "19.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "firebase-ui-auth-7.2.0.aar",
+          "url": "firebase-ui-auth-7.2.0.aar",
+          "size": 682984,
+          "sha512": "13f1ed65d16940a40347f810703d82a70b75e3a20ae9d6c478c3403d6ddcc6ec27492afbe35811805813b4e71731fe6d975189155bd7d1eaff5e5f65e54a232d",
+          "sha256": "025ec854127fbf8623b37bed467b899c3a1b1b54db35871b6bb19301a830659b",
+          "sha1": "43603ac2c9701d7bcb86fcacb557ea75371c6b95",
+          "md5": "06aed39218773ab8374e5388b6cd7194"
+        }
+      ]
+    }
+  ]
+}

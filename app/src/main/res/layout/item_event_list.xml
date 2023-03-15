@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:foreground="@drawable/selector_card"
+    android:id="@+id/eventCard"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="10dp"
+    app:contentPadding="10dp"
+    android:layout_width="170dp"
+    android:layout_height="200dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        app:cardBackgroundColor="@color/eerie_black"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpeakableTextPresentCheck" >
+
+        <ImageView
+            android:id="@+id/eventImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY" />
+
+        <ImageButton
+            android:id="@+id/likeBtn"
+            android:layout_width="27dp"
+            android:layout_height="26dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/selector_button"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/eventMinPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="71dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:fontFamily="@font/manrope"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="1dp"
+            android:text="000"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <!--        tools:srcCompat="@tools:sample/backgrounds/scenic"-->
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/eventName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="50dp"
+        android:fontFamily="@font/manrope_semibold"
+        android:maxLines="1"
+        android:text="Name"
+        android:textColor="@color/text_black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/eventCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventCard" />
+
+    <TextView
+        android:id="@+id/eventDateTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="2dp"
+        android:layout_marginBottom="30dp"
+        android:fontFamily="@font/manrope_medium"
+        android:maxLines="1"
+        android:text="nearest date/time"
+        app:layout_constraintEnd_toEndOf="@+id/eventName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventName" />
+
+    <TextView
+        android:id="@+id/eventPlace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="2dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/manrope_medium"
+        android:maxLines="1"
+        android:text="place"
+        app:layout_constraintEnd_toEndOf="@+id/eventName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventName" />
+
+</androidx.cardview.widget.CardView>
