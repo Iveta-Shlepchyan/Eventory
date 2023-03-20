@@ -10,28 +10,40 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.Barrier;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.R;
 import com.example.eventory.ViewAllActivity;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
 public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<String> tags = new ArrayList<String>();
-    public static ArrayList<String> selected_tags = new ArrayList<String>();
+    public ArrayList<String> selected_tags = new ArrayList<String>();
     private boolean selectable = true;
+    private boolean isMapFragment = false;
+    private int item = R.layout.item_tag;
 
     public TagAdapter(Context context, Collection<String> tags, boolean selectable){
         this.context = context;
         this.tags.addAll(tags);
         this.selectable = selectable;
+    }
+
+
+    public void select_all_map_tags(){
+        selected_tags.clear();
+        selected_tags.addAll(tags);
+        isMapFragment = true;
+        item = R.layout.item_tag_map;
+    }
+
+    public boolean isMapFragment(){
+        return isMapFragment;
     }
 
     public ArrayList<String> getTags() {
@@ -59,6 +71,21 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
+
+        if(isMapFragment){
+            holder.tag.getBackground().setAlpha(180);
+            if(selected_tags.contains(tags.get(position))){
+                holder.tag.getBackground().setTint(context.getResources().getColor(Convertor.categories.get(tags.get(position))));
+                holder.tag.setTextColor(context.getResources().getColor(R.color.white));
+            }
+            else{
+                holder.tag.getBackground().setTint(context.getResources().getColor(R.color.white));
+                holder.tag.setTextColor(context.getResources().getColor(R.color.searchHint));
+            }
+        }
+
+
         holder.tag.setText("#"+tags.get(position));
         if(selectable) holder.tag.setSelected(selected_tags.contains(tags.get(position)));
         holder.tag.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +108,6 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
                     else{
                         selected_tags.add(tags.get(holder.getPosition()));
                         notifyItemChanged(holder.getPosition());
-
 
                         onItemClickListner.onClick(holder.getPosition(), tags.get(holder.getPosition()), true);
                         }

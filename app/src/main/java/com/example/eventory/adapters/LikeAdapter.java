@@ -3,6 +3,8 @@ package com.example.eventory.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventory.ContainerActivity;
 import com.example.eventory.EventPageActivity;
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.R;
 import com.example.eventory.models.CardModel;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -33,6 +37,7 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.ViewHolder>{
         this.context = context;
         this.cardModelList = cardModelList;
     }
+
 
 
     @NonNull
@@ -65,6 +70,7 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.ViewHolder>{
             public void onClick(View view) {
                 ContainerActivity.likedCards.remove(cardModelList.get(holder.getPosition()));
                 notifyItemRemoved(holder.getPosition());
+                Convertor.saveLikes(context.getApplicationContext());
             }
         });
 

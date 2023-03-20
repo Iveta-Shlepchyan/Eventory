@@ -1,5 +1,6 @@
 package com.example.eventory;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.adapters.DateAdapter;
 import com.example.eventory.adapters.ImageAdapter;
 import com.example.eventory.adapters.TagAdapter;
@@ -56,6 +58,7 @@ public class EventPageActivity extends AppCompatActivity {
     RecyclerView moreImagesRec, dateRec, tagsRec;
     SupportMapFragment map;
 
+    CardModel event;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,7 +94,7 @@ public class EventPageActivity extends AppCompatActivity {
 
 
         Intent i = getIntent();
-        CardModel event = (CardModel) getIntent().getSerializableExtra("info");
+        event = (CardModel) getIntent().getSerializableExtra("info");
 
         Glide.with(this).load(event.getImg_url()).into(eventImage);
         eventName.setText(event.getName());
@@ -177,7 +180,7 @@ public class EventPageActivity extends AppCompatActivity {
 
 
 
-        if (event.getLocation()==null) map.setMenuVisibility(false);
+        if (event.getGeoPoint()==null) map.setMenuVisibility(false);
         else map.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -187,16 +190,14 @@ public class EventPageActivity extends AppCompatActivity {
 
 
 
-                LatLng marker_position = getLocationFromAddress(event.getLocation());
+                LatLng marker_position = new LatLng(event.getGeoPoint().getLatitude(), event.getGeoPoint().getLongitude());
                 googleMap.addMarker(new MarkerOptions().position(marker_position));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker_position, 16));
 
                 try {
-                    // Customise the styling of the base map using a JSON object defined
-                    // in a raw resource file.
                     boolean success = googleMap.setMapStyle(
                             MapStyleOptions.loadRawResourceStyle(
-                                    EventPageActivity.this, R.raw.style_json));
+                                    EventPageActivity.this, R.raw.style2_json));
 
                     if (!success) {
                         Log.e("LocationMap", "Style parsing failed.");
@@ -208,7 +209,9 @@ public class EventPageActivity extends AppCompatActivity {
                 googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {
-
+                        /*Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
+                        i.putExtra("goToMap", event.getName());
+                        startActivity(i);*/
                     }
                 });
 
@@ -225,18 +228,13 @@ public class EventPageActivity extends AppCompatActivity {
 
 
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(event.isLiked()){
+                    event.setLiked(false);
                     likeBtn.setBackgroundResource(R.drawable.selector_button);
+
                     for (CardModel likedCard: ContainerActivity.likedCards ) {
                         if (likedCard.getName().equals(event.getName())){
                             ContainerActivity.likedCards.remove(likedCard);
@@ -249,17 +247,7 @@ public class EventPageActivity extends AppCompatActivity {
                     event.setLiked(true);
                     ContainerActivity.likedCards.add(event);
                 }
-
-                Gson gson = new Gson();
-                String json = gson.toJson(ContainerActivity.likedCards);
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(EventPageActivity.this);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                editor.putString("card_models", json);
-                editor.commit();
-
-
+                Convertor.saveLikes(getApplicationContext());
             }
         });
 
@@ -296,10 +284,32 @@ public class EventPageActivity extends AppCompatActivity {
             }
         });
 
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateLikes();
+            }
+        });
+
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         Log.e("Time taken", String.valueOf(duration) + "ms");
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        updateLikes();
+    }
+
+    private void updateLikes(){
+        ContainerActivity.lastLikedEvent = event;
+        if(getIntent().getBooleanExtra("fromHome", false))
+            startActivity(new Intent(EventPageActivity.this, ContainerActivity.class));
+        else {
+            finish();
+        }
     }
 
     public boolean isServicesOK(){
@@ -315,31 +325,6 @@ public class EventPageActivity extends AppCompatActivity {
         return false;
     }
 
-    public LatLng getLocationFromAddress( String strAddress) {
-
-        Geocoder coder = new Geocoder(this);
-//        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault(), new FileBasedAddressCache(getContext()));
-        List<Address> address;
-        LatLng p1 = null;
-
-        try {
-            // May throw an IOException
-            address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
-                return null;
-            }
-
-            Address location = address.get(0);
-            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
-
-        } catch (Exception ex) {
-
-            Log.e("Geocoder", "getLocationFromAddress failed \n Address : "+ strAddress);
-            return new LatLng(40.177200, 44.503490);
-        }
-
-        return p1;
-    }
 
     private void setTextAndVisibility(TextView textView, String value) {
         if (value == null) {

@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable-v24/bg_direction_btn.xml" value="0.196" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable-v24/bg_filter_btn.xml" value="0.2915" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable-v24/bg_filter_dialog_normal.xml" value="0.188" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable-v24/selector_chevron.xml" value="0.1865" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/bg_button.xml" value="0.3675" />
@@ -24,9 +25,12 @@
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_alert.xml" value="0.358" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_back_arrow.xml" value="0.1" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_back_arrow_white.xml" value="0.1" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_baseline_alternate_email_24.xml" value="0.2005" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_calendar.xml" value="0.2995" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_clock.xml" value="0.2045" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_close.xml" value="0.21" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_current_location.xml" value="0.203" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_email.xml" value="0.2005" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_grid.xml" value="0.3675" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_grid_selected.xml" value="0.216" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_heart.xml" value="0.2665" />
@@ -35,8 +39,10 @@
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_heart_card_black.xml" value="0.2665" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_heart_card_pressed.xml" value="0.25" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_launcher_background.xml" value="0.3675" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_layers.xml" value="0.203" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_list.xml" value="0.3675" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_list_selected.xml" value="0.216" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_lock.xml" value="0.2565" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_pin.xml" value="0.358" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_price_ticket.xml" value="0.3675" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/drawable/ic_search.xml" value="0.3065" />
@@ -62,13 +68,14 @@
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_admin.xml" value="0.30085470085470084" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_container.xml" value="0.3009833262077811" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_event_page.xml" value="0.2" />
-        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_login.xml" value="0.3009833262077811" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_main.xml" value="0.30085470085470084" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_register.xml" value="0.30085470085470084" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_super_admin.xml" value="0.30085470085470084" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/activity_view_all.xml" value="0.22" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/category_item.xml" value="0.33" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/container_activity.xml" value="0.25" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/custom_map_layers_menu.xml" value="0.5" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/date_time_item.xml" value="0.75" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/event_list_item.xml" value="0.31756756756756754" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/event_page_activity.xml" value="0.25" />
@@ -77,10 +84,11 @@
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_dialog_map_events.xml" value="0.18888888888888888" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_home.xml" value="0.1" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_like.xml" value="0.16" />
-        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_map.xml" value="0.14" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_map.xml" value="0.2" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/fragment_search.xml" value="0.25" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/image_item.xml" value="0.2804617357845233" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_category.xml" value="0.33" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_current_location_btn.xml" value="0.3" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_date_time.xml" value="0.3009833262077811" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_event_centered.xml" value="0.25" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_event_list.xml" value="0.18" />
@@ -89,11 +97,13 @@
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_like_list.xml" value="0.1" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_location.xml" value="0.28173374613003094" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_tag.xml" value="0.75" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/item_tag_map.xml" value="0.30085470085470084" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/layout_item.xml" value="0.17" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/like_list_item.xml" value="0.33" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/login_activity.xml" value="0.1707193515704154" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/layout/register_activity.xml" value="0.3009833262077811" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/menu/bottom_nav_menu.xml" value="0.30085470085470084" />
+        <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/menu/map_layers_menu.xml" value="0.3" />
         <entry key="..\:/Ivi/AndroidStudioProjects/Eventory/Eventory/app/src/main/res/menu/search_menu.xml" value="0.1" />
       </map>
     </option>

@@ -48,8 +48,11 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    //google maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.maps.android:android-maps-utils:3.4.0'
     implementation 'com.google.maps:google-maps-services:0.2.5'
 
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -63,6 +66,7 @@ dependencies {
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+
     implementation 'jp.wasabeef:blurry:4.0.1'
 
     //Gson

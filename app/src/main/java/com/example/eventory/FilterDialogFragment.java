@@ -8,12 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -23,10 +20,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.Logic.Filter;
 import com.example.eventory.adapters.LocationAdapter;
 import com.example.eventory.adapters.TagAdapter;
-import com.example.eventory.adapters.ViewAllAdapter;
+import com.example.eventory.models.CardModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -37,7 +35,7 @@ import com.google.android.material.slider.RangeSlider;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
 
 public class FilterDialogFragment extends BottomSheetDialogFragment{
@@ -48,6 +46,8 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
     int sliderStartPrice = 0, sliderEndPrice = 100000;
     static Date startDate = null;
     static Date endDate = null;
+
+    HashSet<CardModel> filteredList;
 
     FilterDialogFragment(TagAdapter tagAdapter){
         this.tagAdapter = tagAdapter;
@@ -110,7 +110,10 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
         if(endDate != null) date += " - " + dateFormat.format(endDate);
         if(!date.isEmpty()) setDateBtn.setText(date);
 
-        Filter filter = new Filter();
+        if(tagAdapter.isMapFragment())  filteredList =  MapFragment.mapFilteredList;
+        else filteredList = ViewAllActivity.filteredList;
+
+        Filter filter = new Filter(filteredList);
 
 
         allBtn.setOnClickListener(new View.OnClickListener() {
@@ -146,8 +149,10 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
             @Override
             public void onClick(View v) {
                 tagAdapter.selected_tags.clear();
+                if(tagAdapter.isMapFragment()) {
+                    tagAdapter.selected_tags.addAll(Convertor.categories.keySet());
+                }
                 tagAdapter.notifyDataSetChanged();
-
                 locationAdapter.selected_locations.clear();
                 locationAdapter.notifyDataSetChanged();
 
@@ -155,19 +160,26 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
                 startDate = null;
                 endDate = null;
                 filter.reset();
+
+                if(tagAdapter.isMapFragment()) MapFragment.showAllMarkers();
             }
         });
 
         applyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ViewAllActivity.filteredList.clear();
+
+
+                filteredList.clear();
                 filter.filterByTags(tagAdapter);
 
                 if(endDate != null) filter.filterByDate(startDate, endDate);
                 else if(startDate != null) filter.filterByDate(startDate);
                 filter.filterByPrice(sliderStartPrice, sliderEndPrice);
-                filter.filterByLocation(LocationAdapter.selected_locations);
+                filter.filterByLocations(LocationAdapter.selected_locations);
+
+
+                if(tagAdapter.isMapFragment()) MapFragment.filterMarkers();
                 dismiss();
 
             }

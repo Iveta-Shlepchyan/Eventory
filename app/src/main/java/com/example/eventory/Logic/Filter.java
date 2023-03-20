@@ -1,17 +1,31 @@
 package com.example.eventory.Logic;
 
+import android.util.Log;
+
+import com.example.eventory.ContainerActivity;
+import com.example.eventory.MapFragment;
 import com.example.eventory.R;
 import com.example.eventory.ViewAllActivity;
 import com.example.eventory.adapters.TagAdapter;
 import com.example.eventory.models.CardModel;
+import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 public class Filter extends ViewAllActivity {
+
+    public HashSet<CardModel> filteredList;
+
+    public Filter(HashSet<CardModel> filteredList){
+        this.filteredList = filteredList;
+    }
+   // public static HashSet<String> filtered_address_set = new HashSet<>(ContainerActivity.locations_set);
+    //if adapte != null check
 
 
     public void filter(String text) {
@@ -22,11 +36,13 @@ public class Filter extends ViewAllActivity {
                 filteredList.add(event);
 
 
-        adapter.filterList(filteredList);
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
-    public void filterByTag(String tag, boolean selected) {
+    public void filterByTag(String tag, boolean selected, TagAdapter tagAdapter) {
 
         if (selected) {
             for (CardModel event : allEvents)
@@ -35,38 +51,43 @@ public class Filter extends ViewAllActivity {
 
         } else {
             filteredList.removeIf(item -> item.getTags().contains(tag) &&
-                    !TagAdapter.selected_tags.stream()
+                    !tagAdapter.selected_tags.stream()
                             .anyMatch(selectedTag -> item.getTags().contains(selectedTag)));
         }
 
-        adapter.filterList(filteredList);
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
 
     public void filterByTags(TagAdapter tagAdapter){
         filteredList.clear();
-        if(!TagAdapter.selected_tags.isEmpty()) {
-            for (String tag : TagAdapter.selected_tags) {
-                filterByTag(tag, true);
+        if(!tagAdapter.selected_tags.isEmpty()) {
+            for (String tag : tagAdapter.selected_tags) {
+                filterByTag(tag, true, tagAdapter);
             }
         }
         else reset();
     }
 
-    public void filterByLocation(List<String> locations) {
+    public void filterByLocations(List<String> locations) {
 
         if (!locations.isEmpty()) {
             for (CardModel event : allEvents)
                 if (!locations.contains(event.getLocation()))
                     filteredList.remove(event);
 
-            adapter.filterList(filteredList);
-            setFounds();
+            if(adapter != null) {
+                adapter.filterList(filteredList);
+                setFounds();
+            }
         }
 
     }
-    public static ArrayList<CardModel> location(String location) {
+    public static ArrayList<CardModel> filterByLocation(String location) {
+
         ArrayList<CardModel> events = new ArrayList<>();
             for (CardModel event : allEvents)
                 if (location.equals(event.getLocation()))
@@ -74,6 +95,18 @@ public class Filter extends ViewAllActivity {
 
         return events;
     }
+
+    public ArrayList<CardModel> location(String location) {
+
+         if(filteredList.isEmpty()) filteredList.addAll(allEvents);
+        ArrayList<CardModel> events = new ArrayList<>();
+        for (CardModel event : filteredList)
+            if (location.equals(event.getLocation()))
+                events.add(event);
+
+        return events;
+    }
+
 
 
 
@@ -89,9 +122,10 @@ public class Filter extends ViewAllActivity {
 
         }
 
-        adapter.filterList(filteredList);
-
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
     //FIXME events with many dates that include the given date
@@ -109,9 +143,10 @@ public class Filter extends ViewAllActivity {
             }
 
 
-        adapter.filterList(filteredList);
-
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
     public void filterByDate(Date startDate, Date endDate) {
@@ -130,27 +165,47 @@ public class Filter extends ViewAllActivity {
             }
         }
 
-        adapter.filterList(filteredList);
-
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
 
-    public static void setFounds(){
-        int founds = adapter.getItemCount();
-        if(founds == 0)
-            found.setText(R.string.noResults);
-        else if(founds == 1)
-            found.setText(R.string.found);
-        else found.setText(adapter.getItemCount() + " founds");
+    public void filterMarkers(String tag, boolean selected){
+        for (Marker marker: MapFragment.markers) {
+            Log.e("filter marker", marker.getTag()+"");
+            if(marker.getTag().equals(tag)){
+                if(selected) marker.setVisible(true);
+                else marker.setVisible(false);
+
+            }
+        }
+    }
+
+
+
+
+    public void setFounds(){
+        int founds;
+        if(ViewAllActivity.filteredList == filteredList) {
+            founds = adapter.getItemCount();
+            if (founds == 0)
+                found.setText(R.string.noResults);
+            else if (founds == 1)
+                found.setText(R.string.found);
+            else found.setText(adapter.getItemCount() + " founds");
+        }
 
     }
 
     public void reset(){
         filteredList.clear();
         filteredList.addAll(allEvents);
-        adapter.filterList(filteredList);
-        setFounds();
+        if(adapter != null) {
+            adapter.filterList(filteredList);
+            setFounds();
+        }
     }
 
     public Date reset_time(Date date){

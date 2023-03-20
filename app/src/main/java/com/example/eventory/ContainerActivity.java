@@ -1,4 +1,5 @@
 package com.example.eventory;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,6 +10,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.eventory.Logic.Convertor;
 import com.example.eventory.Logic.FirebaseManipulations;
@@ -45,6 +47,25 @@ public class ContainerActivity extends AppCompatActivity {
     public static HashSet<SerializableGeoPoint> geo_points = new HashSet<>();
     public static ArrayList<BitmapDescriptor> pins = new ArrayList<>();
 
+    public static CardModel lastLikedEvent;
+
+    public interface IOnBackPressed {
+
+        boolean onBackPressed();
+    }
+
+    @Override public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if ((fragment instanceof IOnBackPressed)) {
+            finishAffinity();
+            finish();
+        }
+        else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
+            bottomNavMenu.getMenu().findItem(R.id.home).setChecked(true);
+        }
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,8 +75,14 @@ public class ContainerActivity extends AppCompatActivity {
 
         bottomNavMenu = findViewById(R.id.bottomNavigationView);
 
+        /*String marker = getIntent().getStringExtra("goToMap");
+        if(marker != null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,mapFragment).commit();
+            bottomNavMenu.getMenu().findItem(R.id.map).setChecked(true);
+        }*/
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String json = preferences.getString("card_models", "");
         if(!json.isEmpty()) {
             Type listType = new TypeToken<List<CardModel>>() {}.getType();
@@ -67,6 +94,7 @@ public class ContainerActivity extends AppCompatActivity {
         pins.addAll(Convertor.map_pins(ContainerActivity.this));
 
         FirebaseManipulations.startRemovingPassedEvents();
+
 
         WebScraping webScraping = new WebScraping(ContainerActivity.this);
         webScraping.startScraping();
@@ -102,6 +130,8 @@ public class ContainerActivity extends AppCompatActivity {
 
 
     }
+
+
 
 
 }

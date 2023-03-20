@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventory.ContainerActivity;
 import com.example.eventory.EventPageActivity;
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.R;
 import com.example.eventory.models.CardModel;
 import com.google.gson.Gson;
@@ -28,11 +30,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+
+
 public class ViewAllAdapter extends RecyclerView.Adapter<ViewAllAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<CardModel> cardModelList;
     public boolean isGrid = true;
+
 
     public ViewAllAdapter(Context context, ArrayList<CardModel> cardModelList, boolean isGrid) {
         this.context = context;
@@ -46,6 +51,19 @@ public class ViewAllAdapter extends RecyclerView.Adapter<ViewAllAdapter.ViewHold
         cardModelList.addAll(filterlist);
         notifyDataSetChanged();
     }
+
+    public void updateLikedState(String eventName, boolean isLiked) {
+
+        for (int i = 0; i < cardModelList.size(); i++) {
+            CardModel event = cardModelList.get(i);
+            if(event.getName().equals(eventName)) {
+                event.setLiked(isLiked);
+                notifyItemChanged(i);
+                break;
+            }
+        }
+    }
+
 
     @NonNull
     @Override
@@ -112,16 +130,7 @@ public class ViewAllAdapter extends RecyclerView.Adapter<ViewAllAdapter.ViewHold
                     }
                 }
 
-                Gson gson = new Gson();
-                String json = gson.toJson(ContainerActivity.likedCards);
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                editor.putString("card_models", json);
-                editor.commit();
-
-
+                Convertor.saveLikes(context.getApplicationContext());
             }
         });
 

@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.eventory.Logic.Filter;
-import com.example.eventory.adapters.LocationAdapter;
 import com.example.eventory.adapters.TagAdapter;
 import com.example.eventory.adapters.ViewAllAdapter;
 import com.example.eventory.models.CardModel;
@@ -32,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 
 
+
+
 public class ViewAllActivity extends AppCompatActivity {
 
     public static HashSet<CardModel> filteredList = new HashSet<CardModel>();
@@ -39,11 +40,19 @@ public class ViewAllActivity extends AppCompatActivity {
     public static ViewAllAdapter adapter;
     public static TextView found;
 
+
     RecyclerView searchRec, tagsRec;
 
     SearchView search;
     ImageButton gridBtn, listBtn, filterBtn;
     TagAdapter tagAdapter;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(ContainerActivity.lastLikedEvent != null && adapter != null)
+            adapter.updateLikedState(ContainerActivity.lastLikedEvent.getName(), ContainerActivity.lastLikedEvent.isLiked());
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,7 +71,7 @@ public class ViewAllActivity extends AppCompatActivity {
         //TODO add tags, filter, card out of layout, add hide tag/found bar,
         // remove if event passed (maybe Room local later), SET SEARCHBAR ACTIVE
         final int COLUMNS = calculate_columns(ViewAllActivity.this);
-        Filter filters = new Filter();
+        Filter filters = new Filter(filteredList);
 
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -89,16 +98,16 @@ public class ViewAllActivity extends AppCompatActivity {
             String category = getIntent().getStringExtra("category");
             if(category!=null) {
                 filteredList.clear();
-                TagAdapter.selected_tags.add(category);
-                filters.filterByTag(category, true);
+                tagAdapter.selected_tags.add(category);
+                filters.filterByTag(category, true, tagAdapter);
                 tagSwap(tagAdapter.getTags().indexOf(category), true);
             }
             String location = getIntent().getStringExtra("location");
             if(location != null){
                 filteredList.clear();
-                filteredList.addAll(Filter.location(location));
+                filteredList.addAll(Filter.filterByLocation(location));
                 adapter.filterList(filteredList);
-                Filter.setFounds();
+                filters.setFounds();
             }
 
 //            else search.requestFocus();
@@ -107,7 +116,7 @@ public class ViewAllActivity extends AppCompatActivity {
                 @Override
                 public void onClick(int position, String tag, boolean selected) {
                     if(tagAdapter.selected_tags.size() == 1 && selected) filteredList.clear();
-                    filters.filterByTag(tag, selected);
+                    filters.filterByTag(tag, selected, tagAdapter);
                     if (tagAdapter.selected_tags.isEmpty() && filteredList.isEmpty()){
                         filters.reset();
                     }

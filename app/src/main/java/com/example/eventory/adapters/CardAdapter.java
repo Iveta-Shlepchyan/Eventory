@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventory.ContainerActivity;
 import com.example.eventory.EventPageActivity;
+import com.example.eventory.Logic.Convertor;
 import com.example.eventory.R;
 import com.example.eventory.models.CardModel;
 import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -96,16 +99,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                         }
                     }
                 }
-
-                Gson gson = new Gson();
-                String json = gson.toJson(ContainerActivity.likedCards);
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                editor.putString("card_models", json);
-                editor.commit();
-
+                Convertor.saveLikes(context.getApplicationContext());
 
             }
         });
@@ -115,6 +109,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                 public void onClick(View v) {
                     Intent i = new Intent(context, EventPageActivity.class);
                     i.putExtra("info", cardModel);
+                    i.putExtra("fromHome", true);
                     context.startActivity(i);
                 }
             });

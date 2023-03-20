@@ -28,6 +28,7 @@ import java.util.List;
 public class LikeFragment extends Fragment{
 
     private RecyclerView recyclerView;
+    private LikeAdapter likeAdapter;
 
     private RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
 
@@ -43,7 +44,7 @@ public class LikeFragment extends Fragment{
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        LikeAdapter likeAdapter = new LikeAdapter(getContext(), ContainerActivity.likedCards);
+        likeAdapter = new LikeAdapter(getContext(), ContainerActivity.likedCards);
         likeAdapter.notifyDataSetChanged();
         recyclerView.setAdapter(likeAdapter);
         recyclerView.setRecycledViewPool(viewPool);
@@ -52,4 +53,9 @@ public class LikeFragment extends Fragment{
         return root;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        likeAdapter.notifyDataSetChanged();
+    }
 }

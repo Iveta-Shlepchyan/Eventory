@@ -1,6 +1,8 @@
 package com.example.eventory;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,8 +16,8 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
@@ -29,10 +31,14 @@ import androidx.recyclerview.widget.SnapHelper;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +46,8 @@ import android.widget.Toast;
 
 import com.example.eventory.Logic.Convertor;
 import com.example.eventory.Logic.Filter;
+import com.example.eventory.adapters.DateAdapter;
+import com.example.eventory.adapters.TagAdapter;
 import com.example.eventory.adapters.ViewAllAdapter;
 import com.example.eventory.models.CardModel;
 import com.example.eventory.models.SerializableGeoPoint;
@@ -54,10 +62,10 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
@@ -67,40 +75,51 @@ import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
 import com.google.maps.android.PolyUtil;
-import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.TravelMode;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChangeListener {
 
     SupportMapFragment supportMapFragment;
-    public static GoogleMap googleMap;
-    private static HashSet<Marker> markers = new HashSet<>();
-    private RecyclerView recyclerView;
+    private static GoogleMap googleMap;
+    private GeoApiContext geoApiContext;
 
-    LatLng currentLocation;
-    FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_CODE = 101;
     private boolean locationPermissionGranted;
 
-    private Marker selectedMarker;
+    public static HashSet<Marker> markers = new HashSet<>();
+    public static HashSet<CardModel> mapFilteredList = new HashSet<>();
+    public static HashSet<String> filtered_address_set = new HashSet<>();
+    private Filter filters = new Filter(mapFilteredList);
 
+
+//    private RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
+
+    public  ViewAllAdapter dialogAdapter;
+    private TagAdapter tagAdapter;
+    private RecyclerView eventRecView;
+    private RecyclerView tagsRecView;
+
+
+    private LatLng currentLocation;
+    private Marker selectedMarker;
+    private static Polyline main_polyline;
+    private static Marker polyline_info;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(ContainerActivity.lastLikedEvent != null && dialogAdapter !=null)
+        dialogAdapter.updateLikedState(ContainerActivity.lastLikedEvent.getName(), ContainerActivity.lastLikedEvent.isLiked());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,85 +128,136 @@ public class MapFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
 
+        geoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key)).build();
 
         askForLocationPermission();
         getCurrentLocation();
-
-        //FIXME
         getAllEvents();
 
+
         ImageView directionBtn = view.findViewById(R.id.direction_btn);
-        recyclerView = view.findViewById(R.id.dialogRec);
-        setUpRecyclerView(recyclerView);
-        setupSearchView(view);
+        ImageView filterBtn = view.findViewById(R.id.filter_btn);
+        ImageButton currentLocationBtn = view.findViewById(R.id.current_location_btn);
+        ImageButton layersBtn = view.findViewById(R.id.layers_btn);
+        eventRecView = view.findViewById(R.id.dialogRec);
+        /*eventRecView.setRecycledViewPool(viewPool);
+        eventRecView.setHasFixedSize(true);*/
+        tagsRecView = view.findViewById(R.id.tags_recycler);
+
+        setUpEventRecycler(eventRecView);
+        setUpTagRecycler(tagsRecView);
+        setUpSearchView(view);
+        setUpMap();
 
 
-        directionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(selectedMarker != null) {
-                    LatLng destination = selectedMarker.getPosition();
-                    showDirections(destination);
-                }
+
+        filterBtn.setOnClickListener(v -> {
+            FilterDialogFragment dialog = new FilterDialogFragment(tagAdapter);
+            dialog.show(getFragmentManager(), dialog.getTag());
+        });
+
+
+        directionBtn.setOnClickListener(v -> {
+            if (selectedMarker != null) {
+                LatLng destination = selectedMarker.getPosition();
+                if(main_polyline != null) main_polyline.remove();
+                calculateDirections(destination);
+            }
+            else {
+                main_polyline.remove();
+                polyline_info.remove();
             }
         });
 
-        /*directionBtn.setOnClickListener(v -> {
-            if (selectedMarker != null) {
-                LatLng origin = currentLocation;
-                LatLng destination = selectedMarker.getPosition();
+        currentLocationBtn.setOnClickListener(v -> {
+            getCurrentLocation();
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
+        });
 
-                String url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                        "origin=" + origin.latitude + "," + origin.longitude +
-                        "&destination=" + destination.latitude + "," + destination.longitude +
-                        "&key=" + getString(R.string.google_maps_key);
+        layersBtn.setOnClickListener(v -> {
 
-                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                    PopupMenu popup = new PopupMenu(requireContext(), layersBtn);
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                        response -> {
-                            List<LatLng> routePoints = getRoutePoints(response);
-                            int distance = getDistance(response);
-                            int duration = getDuration(response);
+                    popup.getMenuInflater().inflate(R.menu.map_layers_menu, popup.getMenu());
+                    popup.setGravity(Gravity.END);
 
-                            drawRoute(routePoints);
-                            showRouteInfo(distance, duration);
-                        },
-                        error -> {
-                            Toast.makeText(getActivity(), "Error getting directions", Toast.LENGTH_SHORT).show();
-                        });
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        public boolean onMenuItemClick(MenuItem item) {
 
-                queue.add(request);
-            } else {
-                Toast.makeText(getActivity(), "Please select a marker", Toast.LENGTH_SHORT).show();
+                            switch (item.getItemId()) {
+                                case (R.id.map) :
+                                    googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                                    setMapStyle(R.raw.style2_json);
+                                    break;
+                                case (R.id.satellite) :
+                                    googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                                    break;
+                                case (R.id.all_markers) :
+                                    googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                                    setMapStyle(R.raw.style2_all_markers_json);
+                                    break;
+                            }
+
+                            return true;
+                        }
+                    });
+
+                    popup.show();
+                });
+
+        return view;
+
+    }
+
+    private void setUpTagRecycler(RecyclerView tagRecView) {
+        tagAdapter = new TagAdapter(requireContext(), Convertor.categories.keySet(), true);
+        tagAdapter.select_all_map_tags();
+        tagsRecView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        tagsRecView.setAdapter(tagAdapter);
+        tagsRecView.setHasFixedSize(true);
+
+        tagAdapter.setOnItemClickListener(new TagAdapter.onItemClickListener() {
+            @Override
+            public void onClick(int position, String tag, boolean selected) {
+                filters.filterMarkers(tag, selected);
             }
-        });*/
+        });
+    }
 
 
 
 
+    @SuppressLint("PotentialBehaviorOverride")
+    private void setUpMap(){
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
 
-            @SuppressLint("MissingPermission")
+            @SuppressLint({"MissingPermission", "PotentialBehaviorOverride"})
             @Override
             public void onMapReady(GoogleMap googleMap) {
 
                 MapFragment.googleMap = googleMap;
                 UiSettings UiSettings = googleMap.getUiSettings();
+                UiSettings.setMapToolbarEnabled(false);
+                UiSettings.setMyLocationButtonEnabled(false);
+                googleMap.setPadding(0,300, 0, 0);
                 addMarkersToMap();
-                setMapStyle();
+                setMapStyle(R.raw.style2_json);
 
                 if (locationPermissionGranted) {
                     googleMap.setMyLocationEnabled(true);
                     getCurrentLocation();
+                    if (currentLocation != null)
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+                    else {
+                        LatLng yerevan = new LatLng(40.177200, 44.503490);
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
+                    }
                 }
-                UiSettings.setMyLocationButtonEnabled(true);
-
 
 
                 if(locationPermissionGranted){
                     getCurrentLocation();
-                    if(currentLocation!=null) {
+                    /*if(currentLocation!=null) {
                         CircleOptions circleOptions = new CircleOptions()
                                 .center(currentLocation)
                                 .radius(1000) // in meters
@@ -195,12 +265,7 @@ public class MapFragment extends Fragment {
                                 .strokeColor(Color.BLUE)
                                 .fillColor(Color.parseColor("#500000FF")); // 50% transparent blue
                         Circle circle = googleMap.addCircle(circleOptions);
-                    }
-                }
-                else {
-                    LatLng yerevan = new LatLng(40.177200, 44.503490);
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(yerevan));
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
+                    }*/
                 }
 
 
@@ -209,10 +274,12 @@ public class MapFragment extends Fragment {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
 
-                        ViewAllAdapter dialogAdapter = new ViewAllAdapter(getContext(), Filter.location(marker.getTitle()), false);
-                        recyclerView.setAdapter(dialogAdapter);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        selectedMarker = marker;
+                        if(!marker.equals(polyline_info)) {
+                            dialogAdapter = new ViewAllAdapter(getContext(), filters.location(marker.getTitle()), false);
+                            eventRecView.setAdapter(dialogAdapter);
+                            eventRecView.setVisibility(View.VISIBLE);
+                            selectedMarker = marker;
+                        }
 
                         return false;
                     }
@@ -221,12 +288,13 @@ public class MapFragment extends Fragment {
                 googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(@NonNull LatLng latLng) {
-                        if(recyclerView.getVisibility()==View.VISIBLE)
-                            recyclerView.setVisibility(View.GONE);
+                        if(eventRecView.getVisibility()==View.VISIBLE)
+                            eventRecView.setVisibility(View.GONE);
                         if (selectedMarker != null) {
                             selectedMarker.hideInfoWindow();
                             selectedMarker = null;
                         }
+                        if(polyline_info != null) polyline_info.showInfoWindow();
                     }
                 });
 
@@ -234,9 +302,11 @@ public class MapFragment extends Fragment {
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(@NonNull Marker marker) {
-                        Intent i = new Intent(getContext(), ViewAllActivity.class);
-                        i.putExtra("location", marker.getTitle());
-                        startActivity(i);
+                        if(!marker.equals(polyline_info)) {
+                            Intent i = new Intent(getContext(), ViewAllActivity.class);
+                            i.putExtra("location", marker.getTitle());
+                            startActivity(i);
+                        }
 
                     }
                 });
@@ -244,17 +314,26 @@ public class MapFragment extends Fragment {
                 googleMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
                     @Override
                     public void onInfoWindowLongClick(@NonNull Marker marker) {
-                        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(marker.getTitle()));
-                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                        mapIntent.setPackage("com.google.android.apps.maps");
-                        startActivity(mapIntent);
+                        if(!marker.equals(polyline_info)) {
+                            Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(marker.getTitle()));
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            startActivity(mapIntent);
+                        }
                     }
                 });
 
             }
         });
-        return view;
+
     }
+
+    @Override
+    public void onMyLocationChange(@NonNull Location location) {
+        if(main_polyline != null) main_polyline.remove();
+        calculateDirections(new LatLng(location.getLatitude(), location.getLongitude()));
+    }
+
 
     private void askForLocationPermission() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -268,11 +347,11 @@ public class MapFragment extends Fragment {
     }
 
 
-    private void setMapStyle(){
+    private void setMapStyle(int style){
         try {
             boolean success = googleMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
-                           requireContext(), R.raw.style2_json));
+                           requireContext(), style));
 
             if (!success) {
                 Log.e("LocationMap", "Style parsing failed.");
@@ -283,26 +362,49 @@ public class MapFragment extends Fragment {
     }
 
     private void addMarkersToMap() {
+        googleMap.clear();
+        markers.clear();
         if(!ContainerActivity.geo_points.isEmpty()){
             for (SerializableGeoPoint geoPoint : ContainerActivity.geo_points){
                 LatLng latLng = new LatLng(geoPoint.getGeoPoint().getLatitude(), geoPoint.getGeoPoint().getLongitude());
                 Marker new_marker = googleMap.addMarker(new MarkerOptions().position(latLng).title(geoPoint.getAddress())
                         .icon(Convertor.get_icon(geoPoint.getCategory())));
-                boolean match = false;
-                for(Marker marker : markers){
-                    if(marker.getTitle().equals(geoPoint.getAddress())){
-                        match = true;
-                        break;
-                    }
-                }
-                if(!match) markers.add(new_marker);
+                new_marker.setTag(geoPoint.getCategory());
+                markers.add(new_marker);
             }
+        }
+    }
+
+    public static void filterMarkers(){
+        main_polyline.remove();
+        polyline_info.remove();
+        getAddressSet(filtered_address_set);
+        if(filtered_address_set.size() == markers.size()) showAllMarkers();
+        else {
+            for (Marker marker : markers) {
+                if (filtered_address_set.contains(marker.getTitle())) {
+                    marker.setVisible(true);
+                } else marker.setVisible(false);
+            }
+        }
+    }
+
+   private static void getAddressSet(HashSet<String> address_set){
+        address_set.clear();
+        for (CardModel event : mapFilteredList) {
+            address_set.add(event.getLocation());
+        }
+    }
+
+    public static void showAllMarkers(){
+        for (Marker marker: markers) {
+            marker.setVisible(true);
         }
     }
 
 
     public void getAllEvents(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireContext().getApplicationContext());
         String json = preferences.getString("Tomsarkgh", "");
         if (!json.isEmpty()) {
             Type listType = new TypeToken<List<CardModel>>() {
@@ -321,8 +423,6 @@ public class MapFragment extends Fragment {
                 if (location != null) {
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     currentLocation = latLng;
-                    if(googleMap!=null)
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                 } else {
                     Toast.makeText(requireContext(), "Unable to get current location", Toast.LENGTH_SHORT).show();
                 }
@@ -342,135 +442,26 @@ public class MapFragment extends Fragment {
             }
         }
     }
-    public interface DirectionsApiService {
 
-        @GET("directions/json")
-        Call<DirectionsResult> getDirections(
-                @Query("origin") String origin,
-                @Query("destination") String destination,
-                @Query("mode") String mode,
-                @Query("key") String key
-        );
-    }
-    String BASE_URL = "https://maps.googleapis.com/maps/api/";
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-
-    DirectionsApiService apiService = retrofit.create(DirectionsApiService.class);
-
-    private void showDirections(LatLng destination) {
+    private void calculateDirections(LatLng destination) {
         if (locationPermissionGranted) {
-            LatLng origin = currentLocation;
+            com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(currentLocation.latitude, currentLocation.longitude);
+            com.google.maps.model.LatLng destinationLatLng = new com.google.maps.model.LatLng(destination.latitude, destination.longitude);
 
-            origin = new LatLng(40.1876719,44.5669348);
-            destination = new LatLng(40.179111,44.4882828);
-            String originString = origin.latitude + "," + origin.longitude;
-            String destinationString = destination.latitude + "," + destination.longitude;
-            String mode = "driving";
-            String key = getString(R.string.google_maps_key);
+            DirectionsApiRequest directions = DirectionsApi.newRequest(geoApiContext);
 
-            Call<DirectionsResult> call = apiService.getDirections(originString, destinationString, mode, key);
+            directions.origin(origin);
 
-            call.enqueue(new Callback<DirectionsResult>() {
-                @Override
-                public void onResponse(Call<DirectionsResult> call, Response<DirectionsResult> response) {
-                    if (response.isSuccessful()) {
-
-                        DirectionsResult result = response.body();
-                        Log.e("API response", ""+ response.body().toString() +" routes"+ result.routes);
-                        Log.e("API response check", ""+(result.routes != null && result.routes.length > 0));
-                        if (result.routes != null && result.routes.length > 0) {
-                            DirectionsRoute route = result.routes[0];
-
-//                            String encodedPolyline = route.overviewPolyline.getEncodedPath();
-                            //FIXME not getting OVERVIEW POLYLINE properly
-                            String encodedPolyline = "}chtF_o_oG`@@PTL^E@GFIFKPGPEZA\\@XFTHPLHPHNNHNFZBLQn@Wh@e@nAy@y@mA}AQ[c@wAGu@J}AVuA^wAJGf@g@NY?]Ma@MIKEK@q@RyAd@aAb@uCfAoB`@]GSKiCqBkB{AeA{@q@c@gAi@m@SgB]w@Ic@?wBNYRi@LiBr@iP`H_JzDsFfCkHzCsIpDuGtCoF|BoCbBeAp@{BvAq@`AYl@Kj@AP@d@F\\Vr@`@b@RLXDdA?jBFrALrAz@fAv@~BrBxHpHtKnKzEtEdBnBhEnFxDzEtDtEnAbBlAfBp@dAtDfGjAzBf@pA\\~@l@rBh@|CR|APnBFxBG~DCz@SdC{AdN]tD?zALrAb@dBZ|@v@jAvE~FbAnAb@n@P`@Vv@VfAr@bFd@bBp@vAX`@ZZZVbAdAj@ThB`BbDvCz@t@dA~@vB|BhDlDp@p@d@^f@TZDd@Cd@Oj@_@fAu@j@O\\CbCZfAZnCvAhB`Af@n@\\x@L`@\\|@`@f@NLVNr@R|@HzADbAFt@NlAPdATDHHLt@VdAV`@Np@Xh@\\fAb@|BbA|@b@tBtA|@p@lBdBdCpCnAjBlA|B\\~@XfAb@xBt@~FTbCZrFH`DJ~@FV\\pAlBlF~BnHrBpGF`AAXER]h@iA`AeIdGgDhCkBxA^bAnC|JBpG?zCCRWx@[h@gB`CyCrEa@f@MPIAOEMCc@Kg@A]HcCrA_Aj@y@n@QR_@p@Ur@yApFQr@iAhEWvAEpABj@Jl@Z|@F^Nb@Ll@HtAAJSXM^Up@gB~DiC|F_DtHpFtEHBFAJUBETRrBaFFOWU";
-
-
-                            List<LatLng> decodedPath = PolyUtil.decode(encodedPolyline);
-
-
-
-                            Log.e("WTF2", ""+ response.body() +" routes"+ result.routes);
-
-
-                            PolylineOptions polylineOptions = new PolylineOptions();
-                            polylineOptions.color(Color.BLUE);
-                            polylineOptions.width(10);
-                            polylineOptions.addAll(decodedPath);
-                            googleMap.addPolyline(polylineOptions);
-
-
-                            long distance = 0;
-                            long duration = 0;
-                            for (DirectionsLeg leg : route.legs) {
-                                distance += leg.distance.inMeters;
-                                duration += leg.duration.inSeconds;
-                            }
-
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Route Information");
-                            builder.setMessage(String.format("Distance: %d meters\nTime: %d seconds", distance, duration));
-                            builder.setPositiveButton("OK", null);
-                            builder.show();
-                        } else {
-                            Log.e("MapFragment", "Failed to retrieve directions");
-                            Toast.makeText(getActivity(), "Failed to retrieve directions", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                }
-
-
-                @Override
-                public void onFailure(Call<DirectionsResult> call, Throwable t) {
-                    Log.e("Failed to retrieve directions", t.getMessage());
-                }
-            });
-        }
-    }
-
-
-    /*private void showDirections(LatLng destination) {
-        if(locationPermissionGranted){
-            LatLng origin = currentLocation;
-
-            LatLngBounds bounds = LatLngBounds.builder()
-                    .include(origin)
-                    .include(destination)
-                    .build();
-
-            Log.e("WTF", origin.latitude + " " + origin.longitude +" "+ destination.latitude + " "+ destination.longitude);
-
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-
-            DirectionsApiRequest apiRequest = DirectionsApi.newRequest(getGeoContext())
-                    .origin(String.valueOf(origin))
-                    .destination(String.valueOf(destination))
-                    .mode(TravelMode.DRIVING);
-            apiRequest.setCallback(new PendingResult.Callback<DirectionsResult>() {
+            directions.destination(destinationLatLng).setCallback(new PendingResult.Callback<DirectionsResult>() {
                 @Override
                 public void onResult(DirectionsResult result) {
-                    // If the API call was successful, draw the route on the map
                     if (result.routes != null && result.routes.length > 0) {
                         DirectionsRoute route = result.routes[0];
-                        List<com.google.maps.model.LatLng> decodedPath =  PolylineEncoding.decode(route.overviewPolyline.getEncodedPath());
 
-                        List<LatLng> latLngList = new ArrayList<>();
-                        for (com.google.maps.model.LatLng mapsLatLng : decodedPath) {
-                            latLngList.add(new LatLng(mapsLatLng.lat, mapsLatLng.lng));
-                        }
+                        String encodedPolyline = route.overviewPolyline.getEncodedPath();
 
-
-                        PolylineOptions polylineOptions = new PolylineOptions();
-                        polylineOptions.color(Color.BLUE);
-                        polylineOptions.width(10);
-                        polylineOptions.addAll(latLngList);
-                        googleMap.addPolyline(polylineOptions);
+                        List<LatLng> decodedPath = PolyUtil.decode(encodedPolyline);
 
 
                         long distance = 0;
@@ -480,43 +471,130 @@ public class MapFragment extends Fragment {
                             duration += leg.duration.inSeconds;
                         }
 
+                        drawPolyline(decodedPath, distance, duration);
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle("Route Information");
-                        builder.setMessage(String.format("Distance: %d meters\nTime: %d seconds", distance, duration));
-                        builder.setPositiveButton("OK", null);
-                        builder.show();
                     } else {
-
+                        Log.e("MapFragment", "Failed to retrieve directions");
                         Toast.makeText(getActivity(), "Failed to retrieve directions", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable e) {
+                    Log.e("MapFragment", "calculateDirections: Failed to get directions: " + e.getMessage() );
 
-                    if (e.getMessage() != null) {
-                        Log.e("Failed to retrieve directions", e.getMessage());
-                    } else {
-                        Log.e("Failed to retrieve directions", "Unknown error occurred");
-                    }
                 }
             });
+
         }
-    }*/
+    }
 
 
-/*    private GeoApiContext getGeoContext() {
-        GeoApiContext geoApiContext = new GeoApiContext.Builder()
-                .apiKey(getString(R.string.google_maps_key))
-                .build();
-        return geoApiContext;
-    }*/
+    private void drawPolyline(List<LatLng> decodedPath, long distance, long duration){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.color(R.color.direction);
+                polylineOptions.width(10);
+                polylineOptions.addAll(decodedPath);
+                main_polyline = googleMap.addPolyline(polylineOptions);
+                animatePolyline(main_polyline, decodedPath, distance, duration);
+//                showPolylineInfoWindow(decodedPath, distance, duration);
+            }
+        });
+    }
+
+    private void animatePolyline(final Polyline polyline, final List<LatLng> decodedPath, long distance, long duration) {
+
+        final ValueAnimator animation = ValueAnimator.ofInt(0, 100);
+        animation.setDuration(2000);
+        animation.setInterpolator(new LinearInterpolator());
+
+        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+
+                int animatedValue = (int) valueAnimator.getAnimatedValue();
+                float fraction = animatedValue / 100f;
+
+                int endIndex = (int) (decodedPath.size() * fraction);
+                List<LatLng> subList = decodedPath.subList(0, endIndex);
+
+                polyline.setPoints(subList);
 
 
+            }
+        });
+
+        animation.addListener(new Animator.AnimatorListener() {
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                showPolylineInfoWindow(decodedPath, distance, duration);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+
+        });
+
+
+
+        animation.start();
+    }
+
+
+
+
+    private void showPolylineInfoWindow(List<LatLng> decodedPath, long distance, long duration){
+
+        eventRecView.setVisibility(View.GONE);
+        selectedMarker = null;
+
+        LatLng polylineCenter = decodedPath.get(decodedPath.size() / 2);
+
+        String distanceStr, durationStr;
+
+        double distanceInKm = distance / 1000.0;
+
+        long minutes = duration / 60;
+        int hours = (int) minutes / 60;
+        if (hours > 0) {
+            durationStr = "Duration: " + hours + " h. " + (minutes - hours * 60) + " min.";
+        } else {
+            durationStr =  "Duration: " + minutes + " min.";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        String formattedDistance = decimalFormat.format(distanceInKm).replace(",", ".");
+        distanceStr = "Distance: " + formattedDistance + " km";
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(polylineCenter)
+                .title(durationStr)
+                .snippet(distanceStr)
+                .alpha(0.0f);
+
+        if(polyline_info != null) polyline_info.remove();
+        polyline_info = googleMap.addMarker(markerOptions);
+        polyline_info.setAnchor(0.5f, 0.1f);
+        polyline_info.showInfoWindow();
+    }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void setUpRecyclerView(RecyclerView recyclerView){
+    private void setUpEventRecycler(RecyclerView recyclerView){
 
         SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
@@ -528,7 +606,7 @@ public class MapFragment extends Fragment {
         recyclerView.setVisibility(View.GONE);
 
 
-        //FIXME SNAP HELPER
+        //FIXME better swipe
         recyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -549,7 +627,7 @@ public class MapFragment extends Fragment {
         });
     }
 
-    private void setupSearchView(View view) {
+    private void setUpSearchView(View view) {
         SearchView search = view.findViewById(R.id.searchLocation);
         final String[] columns = new String[] { BaseColumns._ID, "event_address" };
         final MatrixCursor cursor = new MatrixCursor(columns);
@@ -590,10 +668,12 @@ public class MapFragment extends Fragment {
                 for (Marker marker: markers) {
                     if(marker.getTitle().toLowerCase(Locale.ROOT).equals(query.toLowerCase(Locale.ROOT))) {
                         LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                        marker.setVisible(true);
                         marker.showInfoWindow();
-                        recyclerView.setAdapter(new ViewAllAdapter(getContext(), Filter.location(marker.getTitle()), false));
-                        recyclerView.setVisibility(View.VISIBLE);
+                        selectedMarker = marker;
+                        eventRecView.setAdapter(new ViewAllAdapter(getContext(), Filter.filterByLocation(marker.getTitle()), false));
+                        eventRecView.setVisibility(View.VISIBLE);
                         break;
                     }
                 }
@@ -617,4 +697,6 @@ public class MapFragment extends Fragment {
             }
         });
     }
+
+
 }

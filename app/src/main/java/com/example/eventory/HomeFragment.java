@@ -34,16 +34,20 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements ContainerActivity.IOnBackPressed {
 
     FirebaseFirestore db ;
 
     RecyclerView recContainer;
 
+    @Override
+    public boolean onBackPressed() {
+        return true;
+    }
+
     public interface Callback {
         void onCallback(List<CardModel> cardModels);
     }
-
 
 
     @Nullable
@@ -58,10 +62,6 @@ public class HomeFragment extends Fragment {
         recContainer.setLayoutManager(new LinearLayoutManager(getActivity()));
         buildItemList();
 
-        /*for (SerializableGeoPoint geoPoint: ContainerActivity.geo_points) {
-            geoPoint.setEvents(Filter.location(geoPoint.getAddress()));
-        }*/
-
 
         //FIXME home fragment
         TextView search = root.findViewById(R.id.search);
@@ -73,9 +73,11 @@ public class HomeFragment extends Fragment {
         });
 
 
-
         return root;
     }
+
+
+
 
 
 

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
     private Context context;
     private ArrayList<String> more_images;
+    Integer drawable = R.drawable.bg_button;
 
 
 
@@ -45,6 +46,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 ImageDialogFragment dialogFragment = new ImageDialogFragment(more_images.get(holder.getAdapterPosition()));
                 Log.e("adapter", "click " + dialogFragment);
                 dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "Dialog Fragment");
+
             }
         });
 

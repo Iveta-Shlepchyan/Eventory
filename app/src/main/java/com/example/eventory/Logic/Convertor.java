@@ -1,9 +1,11 @@
 package com.example.eventory.Logic;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 
 import androidx.core.content.ContextCompat;
 
@@ -11,10 +13,33 @@ import com.example.eventory.ContainerActivity;
 import com.example.eventory.R;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Convertor {
+
+    public static void saveLikes(Context context){
+        Gson gson = new Gson();
+        String json = gson.toJson(ContainerActivity.likedCards);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("card_models", json);
+        editor.apply();
+    }
+
+    public static final HashMap<String, Integer> categories = new HashMap<String, Integer>(){{
+        put("Theater", R.color.Theater);
+        put("Cinema", R.color.Cinema);
+        put("Concert", R.color.Concert);
+        put("Clubs & pubs", R.color.Clubs);
+        put("Other", R.color.Other);
+
+    }};
 
     public static BitmapDescriptor get_icon(String category){
         switch (category){

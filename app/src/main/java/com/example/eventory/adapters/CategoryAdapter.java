@@ -83,7 +83,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         });
 
 
-        //FIXME see if it is work Tomsarkgh is from here
+        //FIXME see if it works Tomsarkgh is from here
         Gson gson = new Gson();
         String json = gson.toJson(categoryModel.getCardModelList());
 
@@ -91,7 +91,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString(categoryModel.getCategory(), json);
-        editor.commit();
+        editor.apply();
 
     }
 
