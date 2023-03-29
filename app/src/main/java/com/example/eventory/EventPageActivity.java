@@ -93,6 +93,7 @@ public class EventPageActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM, EEEE HH:mm", Locale.ENGLISH);
 
 
+
         Intent i = getIntent();
         event = (CardModel) getIntent().getSerializableExtra("info");
 
@@ -187,6 +188,7 @@ public class EventPageActivity extends AppCompatActivity {
 
                 googleMap.getUiSettings().setScrollGesturesEnabled(false);
                 googleMap.getUiSettings().setZoomGesturesEnabled(false);
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
 
 
 

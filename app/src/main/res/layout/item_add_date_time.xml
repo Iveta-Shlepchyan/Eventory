@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/date_time_card">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:background="@color/background">
+
+        <TextView
+            android:id="@+id/add_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="5dp"
+            android:paddingStart="10dp"
+            android:textSize="19sp"
+            android:layout_weight="1"
+            android:text="20 June, Tuesday"
+            android:textColor="@color/eerie_black"
+            android:background="@drawable/bottom_line" />
+
+        <TextView
+            android:id="@+id/add_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginStart="5dp"
+            android:paddingVertical="5dp"
+            android:paddingStart="10dp"
+            android:textSize="19sp"
+            android:text="21:00"
+            android:textColor="@color/eerie_black"
+            android:background="@drawable/bottom_line" />
+
+        <ImageButton
+            android:id="@+id/remove_btn"
+            android:layout_marginStart="5dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/ic_trash" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

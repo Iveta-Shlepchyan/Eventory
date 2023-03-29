@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileFragment extends Fragment {
 
-    Button logout_btn;
+    Button logout_btn, your_events_btn;
 
     @Nullable
     @Override
@@ -27,13 +27,16 @@ public class ProfileFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        your_events_btn = rootView.findViewById(R.id.your_events);
         logout_btn = rootView.findViewById(R.id.logout_btn);
-        logout_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logout();
-            }
+        logout_btn.setOnClickListener(v -> {
+            logout();
         });
+        your_events_btn.setOnClickListener(v -> {
+            startActivity(new Intent(this.getActivity(), YourEventsActivity.class));
+        });
+
         return rootView;
     }
 

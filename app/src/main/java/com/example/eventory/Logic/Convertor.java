@@ -55,8 +55,11 @@ public class Convertor {
             case "Clubs & pubs":
                 return ContainerActivity.pins.get(3);
 
-            default:
+            case "User Event":
                 return ContainerActivity.pins.get(4);
+
+            default:
+                return ContainerActivity.pins.get(5);
         }
     }
 
@@ -66,6 +69,7 @@ public class Convertor {
         pins.add(bitmapDescriptorFromVector(context, R.drawable.pin_cinema));
         pins.add(bitmapDescriptorFromVector(context, R.drawable.pin_concert));
         pins.add(bitmapDescriptorFromVector(context, R.drawable.pin_club));
+        pins.add(bitmapDescriptorFromVector(context, R.drawable.pin_user_event));
         pins.add(bitmapDescriptorFromVector(context, R.drawable.pin_other));
         return pins;
     }

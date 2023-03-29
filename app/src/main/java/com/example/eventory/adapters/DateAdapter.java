@@ -7,9 +7,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.eventory.CreateEventActivity;
+import com.example.eventory.DateTimePickerDialog;
 import com.example.eventory.R;
 
 import java.text.SimpleDateFormat;
@@ -17,20 +20,33 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-//FIXME dateadapter
-public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
+public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> implements DateTimePickerDialog.ConfirmPressedListener {
     private Context context;
     private int last_selected = 0;
     private int selected_card = 0;
+    private ArrayList<Date> dates = new ArrayList<>();
     private ArrayList<String> stringDates = new ArrayList<>();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM EEEE HH:mm", Locale.ENGLISH);
 
+    private DateTimePickerDialog.ConfirmPressedListener confirmPressedListener;
 
 
 
     public DateAdapter(Context context, ArrayList<Date> dates) {
         this.context = context;
 
+        for (Date date: dates) {
+            stringDates.add(dateFormat.format(date));
+        }
+        if (context instanceof DateTimePickerDialog.ConfirmPressedListener) {
+            confirmPressedListener = (DateTimePickerDialog.ConfirmPressedListener) context;
+            this.dates.addAll(dates);
+        }
+
+    }
+
+    @Override
+    public void onConfirmPressed(ArrayList<Date> dates) {
         for (Date date: dates) {
             stringDates.add( dateFormat.format(date));
         }
@@ -77,13 +93,19 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
         holder.dateCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                holder.dateCard.setCardBackgroundColor(context.getResources().getColor(R.color.white));
-                holder.dateCard.setForeground(context.getResources().getDrawable(R.drawable.bg_card_borders));
-                selected_card = holder.getAdapterPosition();
-                notifyItemChanged(last_selected);
-                last_selected = selected_card;
-                onItemClickListner.onClick(last_selected);
+                if(context instanceof CreateEventActivity){
+                    DateTimePickerDialog dialogFragment = new DateTimePickerDialog(context, dates);
+                    dialogFragment.setConfirmPressedListener(confirmPressedListener);
+                    dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "datePicker");
+                }
+                else {
+                    holder.dateCard.setCardBackgroundColor(context.getResources().getColor(R.color.white));
+                    holder.dateCard.setForeground(context.getResources().getDrawable(R.drawable.bg_card_borders));
+                    selected_card = holder.getAdapterPosition();
+                    notifyItemChanged(last_selected);
+                    last_selected = selected_card;
+                    onItemClickListner.onClick(last_selected);
+                }
             }
         });
     }

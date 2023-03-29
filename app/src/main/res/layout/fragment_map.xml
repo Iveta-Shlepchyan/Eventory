@@ -38,9 +38,8 @@
             app:queryBackground="@null"
             app:searchHintIcon="@drawable/blank_placeholder_drawable"
             app:searchIcon="@drawable/ic_search"
-            tools:ignore="SpeakableTextPresentCheck">
+            tools:ignore="SpeakableTextPresentCheck"/>
 
-        </androidx.appcompat.widget.SearchView>
 
         <ImageView
             android:id="@+id/filter_btn"

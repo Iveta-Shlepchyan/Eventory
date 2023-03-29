@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +16,11 @@ import com.bumptech.glide.Glide;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ImageDialogFragment extends DialogFragment {
+public class ImageDialog extends DialogFragment {
 
     private String img;
 
-    public ImageDialogFragment(String img) {
+    public ImageDialog(String img) {
         this.img = img;
     }
 
@@ -35,7 +34,7 @@ public class ImageDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_dialog_image, container, false);
+        View root = inflater.inflate(R.layout.dialog_image, container, false);
         ImageView image = root.findViewById(R.id.image_in_dialog);
 
         Glide.with(this).load(img).into(image);
@@ -62,7 +61,7 @@ public class ImageDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageDialogFragment.this.dismiss();
+                ImageDialog.this.dismiss();
             }
         };
     }

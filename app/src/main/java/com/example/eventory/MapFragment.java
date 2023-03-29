@@ -10,13 +10,11 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
@@ -37,16 +35,13 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.eventory.Logic.Convertor;
 import com.example.eventory.Logic.Filter;
-import com.example.eventory.adapters.DateAdapter;
 import com.example.eventory.adapters.TagAdapter;
 import com.example.eventory.adapters.ViewAllAdapter;
 import com.example.eventory.models.CardModel;
@@ -58,8 +53,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -152,7 +145,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
 
 
         filterBtn.setOnClickListener(v -> {
-            FilterDialogFragment dialog = new FilterDialogFragment(tagAdapter);
+            FilterDialog dialog = new FilterDialog(tagAdapter);
             dialog.show(getFragmentManager(), dialog.getTag());
         });
 
@@ -164,8 +157,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                 calculateDirections(destination);
             }
             else {
-                main_polyline.remove();
-                polyline_info.remove();
+                if(main_polyline != null) {
+                    main_polyline.remove();
+                    polyline_info.remove();
+                }
             }
         });
 
@@ -243,21 +238,24 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                 addMarkersToMap();
                 setMapStyle(R.raw.style2_json);
 
+                LatLng yerevan = new LatLng(40.177200, 44.503490);
                 if (locationPermissionGranted) {
                     googleMap.setMyLocationEnabled(true);
                     getCurrentLocation();
                     if (currentLocation != null)
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
                     else {
-                        LatLng yerevan = new LatLng(40.177200, 44.503490);
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
                     }
                 }
+                else {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
+                }
 
 
-                if(locationPermissionGranted){
+                /*if(locationPermissionGranted){
                     getCurrentLocation();
-                    /*if(currentLocation!=null) {
+                    if(currentLocation!=null) {
                         CircleOptions circleOptions = new CircleOptions()
                                 .center(currentLocation)
                                 .radius(1000) // in meters
@@ -265,8 +263,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                                 .strokeColor(Color.BLUE)
                                 .fillColor(Color.parseColor("#500000FF")); // 50% transparent blue
                         Circle circle = googleMap.addCircle(circleOptions);
-                    }*/
-                }
+                    }
+                }*/
 
 
 
@@ -376,8 +374,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
     }
 
     public static void filterMarkers(){
-        main_polyline.remove();
-        polyline_info.remove();
+        if(main_polyline != null) {
+            main_polyline.remove();
+            polyline_info.remove();
+        }
         getAddressSet(filtered_address_set);
         if(filtered_address_set.size() == markers.size()) showAllMarkers();
         else {

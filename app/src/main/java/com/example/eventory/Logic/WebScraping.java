@@ -6,16 +6,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.example.eventory.ContainerActivity;
+import com.example.eventory.R;
 import com.example.eventory.models.CardModel;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.jsoup.Jsoup;
@@ -29,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,18 +43,29 @@ public class WebScraping {
         this.context = context;
     }
 
+
+    HashMap<String, String> TKT_links = new HashMap<String, String>(){{
+        put("Theater", "https://tkt.am/en/%D0%A2%D0%B5%D0%B0%D1%82%D1%80/gid/5");
+        put("Cinema", "https://tkt.am/en/%D0%9A%D0%B8%D0%BD%D0%BE/gid/6");
+        put("Concert", "https://tkt.am/en/concert/gid/2");
+        put("For kids", "https://tkt.am/en/%D0%94%D0%B5%D1%82%D1%81%D0%BA%D0%BE%D0%B5%20%D0%BC%D0%B5%D1%80%D0%BE%D0%BF%D1%80%D0%B8%D1%8F%D1%82%D0%B8%D0%B5/gid/9");
+
+    }};
+
+
     public void startScraping() {
         runnable = new Runnable() {
             @Override
             public void run() {
-                getWeb();
+//                getTKT();
+                getTomsarkgh();
             }
         };
         secThread = new Thread(runnable);
         secThread.start();
     }
 
-    private void getWeb() {
+    private void getTomsarkgh() {
 
         try {
             doc = Jsoup.connect("https://tomsarkgh.am/en").get();
@@ -71,16 +76,16 @@ public class WebScraping {
             }
             for (String link : links) {
 
-                CardModel event = getEventInfo(link);
+                CardModel event = getTomsarkghEventInfo(link);
                 if(eventIsValid(event)) FirebaseManipulations.addToFirebase(event);
 
             }
         } catch (IOException e) {
-            Log.e("Jsoup/getWeb", "Connection problem: " + e.getMessage());
+            Log.e("Jsoup/getTomsarkgh", "Connection problem: " + e.getMessage());
         }
     }
 
-    private CardModel getEventInfo(String link) {
+    private CardModel getTomsarkghEventInfo(String link) {
 
         Document event = null;
         try {
@@ -152,7 +157,64 @@ public class WebScraping {
 
 
         }catch (Exception e){
-            Log.e("Jsoup/getEventInfo", link+ "  " + e.getMessage());
+            Log.e("Jsoup/getTomsarkghEventInfo", link+ "  " + e.getMessage());
+        }
+
+        return eventInfo;
+    }
+
+    private void getTKT() {
+
+        for (Map.Entry<String, String> tkt_link: TKT_links.entrySet()) {
+            try {
+                doc = Jsoup.connect(tkt_link.getValue()).get();
+                Elements hrefs = doc.getElementsByAttributeValueContaining("href", "/web/event/event_id");
+                LinkedHashSet<String> eventLinks = new LinkedHashSet<String>();
+                for (Element href : hrefs) {
+                    eventLinks.add("https://tkt.am/en//eid/"+ extractID(href.absUrl("href")));
+                }
+                Log.e("getTKT", eventLinks.toString());
+                for (String eventLink : eventLinks) {
+
+                    CardModel event = getTKTEventInfo(eventLink, tkt_link.getKey());
+//                    if(eventIsValid(event)) FirebaseManipulations.addToFirebase(event);
+
+                }
+            } catch (IOException e) {
+                Log.e("Jsoup/getTKT", "Connection problem: " + e.getMessage());
+            }
+        }
+
+
+    }
+
+    private CardModel getTKTEventInfo(String link, String tag) {
+
+        Document event = null;
+        try {
+            event = Jsoup.connect(link).get();
+        } catch (IOException e) {
+            Log.e("Jsoup", "Connection problem");
+        }
+        CardModel eventInfo = new CardModel();
+        try {
+            eventInfo.setLink(link);
+
+            eventInfo.setName(event.getElementsByClass("info__title title").get(0).text());
+            eventInfo.setImg_url("https://tkt.am"+ event.getElementsByClass("event-image").attr("src"));
+            eventInfo.setLocation(event.getElementsByClass("place__place-more").get(0).text().split(",")[0]);
+            //#TODO get prices, get dates, get description
+
+
+            Log.e("getTKT", eventInfo.getLocation());
+
+            ArrayList<String> tags = new ArrayList<>();
+            if(tag.equals("For kids")) tags.add("Theater");
+            tags.add(tag);
+            eventInfo.setTags(tags);
+
+        }catch (Exception e){
+            Log.e("Jsoup/getTKTEventInfo", link+ "  " + e.getMessage());
         }
 
         return eventInfo;
@@ -162,7 +224,16 @@ public class WebScraping {
 
 
 
-
+    private String extractID(String href) {
+        String regex = "\\d+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(href);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return null;
+        }
+    }
 
 
     private TreeSet<Integer> extractPrice(String description){

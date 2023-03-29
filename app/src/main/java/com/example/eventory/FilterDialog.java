@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 
-public class FilterDialogFragment extends BottomSheetDialogFragment{
+public class FilterDialog extends BottomSheetDialogFragment{
 
     BottomSheetDialog dialog;
 
@@ -49,7 +49,7 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
 
     HashSet<CardModel> filteredList;
 
-    FilterDialogFragment(TagAdapter tagAdapter){
+    FilterDialog(TagAdapter tagAdapter){
         this.tagAdapter = tagAdapter;
     }
 
@@ -57,13 +57,14 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
-        final View view = View.inflate(getContext(), R.layout.fragment_dialog_filter, null);
+        final View view = View.inflate(getContext(), R.layout.dialog_filter, null);
         dialog.setContentView(view);
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         BottomSheetBehavior bottomSheetBehavior =  BottomSheetBehavior.from((View) view.getParent());
 //        bottomSheetBehavior.setPeekHeight(BottomSheetBehavior.PEEK_HEIGHT_AUTO);
         bottomSheetBehavior.setPeekHeight(1500);
+
 
         return dialog;
     }
@@ -72,7 +73,7 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View root = View.inflate(getContext(), R.layout.fragment_dialog_filter, null);
+        View root = View.inflate(getContext(), R.layout.dialog_filter, null);
         RecyclerView categoryRec = root.findViewById(R.id.categoryRec);
         TextView allBtn = root.findViewById(R.id.all_btn);
         RangeSlider priceSlider = root.findViewById(R.id.priceSlider);
@@ -91,7 +92,6 @@ public class FilterDialogFragment extends BottomSheetDialogFragment{
 
         Pair<Long, Long> date_range = new Pair<>(MaterialDatePicker.thisMonthInUtcMilliseconds(), MaterialDatePicker.todayInUtcMilliseconds());
         MaterialDatePicker materialDatePicker = MaterialDatePicker.Builder.dateRangePicker().setSelection(date_range).build();
-
 
 
         categoryRec.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));

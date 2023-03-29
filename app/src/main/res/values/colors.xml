@@ -19,7 +19,11 @@
     <color name="icon_grey">#323232</color>
     <color name="orange_soda">#FF583E</color>
     <color name="background">#F7F7F7</color>
+    <color name="background2">#f4f3f9</color>
     <color name="direction">#217BBC</color>
+    <color name="info">#606060</color>
+
+    <color name="purple">#8167e2</color>
 
     <color name="Theater">#6A45A6</color>
     <color name="Cinema">#F53232</color>

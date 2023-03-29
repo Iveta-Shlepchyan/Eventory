@@ -145,7 +145,7 @@ public class ViewAllActivity extends AppCompatActivity {
         filterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FilterDialogFragment dialog = new FilterDialogFragment(tagAdapter);
+                FilterDialog dialog = new FilterDialog(tagAdapter);
                 dialog.show(getSupportFragmentManager(), dialog.getTag());
 
             }
