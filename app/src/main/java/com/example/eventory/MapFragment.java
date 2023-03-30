@@ -86,7 +86,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
     private GeoApiContext geoApiContext;
 
     private static final int REQUEST_CODE = 101;
-    private boolean locationPermissionGranted;
+    private boolean locationPermissionGranted = false;
 
     public static HashSet<Marker> markers = new HashSet<>();
     public static HashSet<CardModel> mapFilteredList = new HashSet<>();
@@ -106,6 +106,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
     private Marker selectedMarker;
     private static Polyline main_polyline;
     private static Marker polyline_info;
+    private LatLng destination;
 
     @Override
     public void onResume() {
@@ -128,6 +129,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
         getAllEvents();
 
 
+
+
         ImageView directionBtn = view.findViewById(R.id.direction_btn);
         ImageView filterBtn = view.findViewById(R.id.filter_btn);
         ImageButton currentLocationBtn = view.findViewById(R.id.current_location_btn);
@@ -141,6 +144,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
         setUpTagRecycler(tagsRecView);
         setUpSearchView(view);
         setUpMap();
+
+
 
 
 
@@ -165,8 +170,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
         });
 
         currentLocationBtn.setOnClickListener(v -> {
-            getCurrentLocation();
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
+            if(locationPermissionGranted && currentLocation!=null) {
+                getCurrentLocation();
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
+            }
+            else askForLocationPermission();
         });
 
         layersBtn.setOnClickListener(v -> {
@@ -238,18 +246,21 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                 addMarkersToMap();
                 setMapStyle(R.raw.style2_json);
 
-                LatLng yerevan = new LatLng(40.177200, 44.503490);
-                if (locationPermissionGranted) {
-                    googleMap.setMyLocationEnabled(true);
-                    getCurrentLocation();
-                    if (currentLocation != null)
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-                    else {
+                Bundle bundle = getArguments();
+                if (bundle != null) getMarkerByTitle(bundle.getString("marker"));
+                else {
+                    LatLng yerevan = new LatLng(40.177200, 44.503490);
+                    if (locationPermissionGranted) {
+                        googleMap.setMyLocationEnabled(true);
+                        getCurrentLocation();
+                        if (currentLocation != null)
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+                        else {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
+                        }
+                    } else {
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
                     }
-                }
-                else {
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yerevan, 10));
                 }
 
 
@@ -317,6 +328,12 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                             Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                             mapIntent.setPackage("com.google.android.apps.maps");
                             startActivity(mapIntent);
+                        }
+                        else {
+                            Intent intent = new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse("google.navigation:q=" + destination.latitude+","+destination.longitude));
+                            intent.setPackage("com.google.android.apps.maps");
+                            startActivity(intent);
                         }
                     }
                 });
@@ -445,7 +462,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
 
 
     private void calculateDirections(LatLng destination) {
-        if (locationPermissionGranted) {
+        if (locationPermissionGranted && currentLocation != null) {
             com.google.maps.model.LatLng origin = new com.google.maps.model.LatLng(currentLocation.latitude, currentLocation.longitude);
             com.google.maps.model.LatLng destinationLatLng = new com.google.maps.model.LatLng(destination.latitude, destination.longitude);
 
@@ -472,6 +489,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                         }
 
                         drawPolyline(decodedPath, distance, duration);
+
+
 
                     } else {
                         Log.e("MapFragment", "Failed to retrieve directions");
@@ -500,7 +519,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                 polylineOptions.addAll(decodedPath);
                 main_polyline = googleMap.addPolyline(polylineOptions);
                 animatePolyline(main_polyline, decodedPath, distance, duration);
-//                showPolylineInfoWindow(decodedPath, distance, duration);
+//                showPolylineInfoWindow(decodedPath, distance, duration)
             }
         });
     }
@@ -531,7 +550,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
 
             @Override
             public void onAnimationStart(Animator animation) {
-
+                destination = selectedMarker.getPosition();
             }
 
             @Override
@@ -665,18 +684,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                for (Marker marker: markers) {
-                    if(marker.getTitle().toLowerCase(Locale.ROOT).equals(query.toLowerCase(Locale.ROOT))) {
-                        LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-                        marker.setVisible(true);
-                        marker.showInfoWindow();
-                        selectedMarker = marker;
-                        eventRecView.setAdapter(new ViewAllAdapter(getContext(), Filter.filterByLocation(marker.getTitle()), false));
-                        eventRecView.setVisibility(View.VISIBLE);
-                        break;
-                    }
-                }
+                getMarkerByTitle(query);
                 return false;
             }
 
@@ -696,6 +704,21 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationChang
                 return true;
             }
         });
+    }
+
+    private void getMarkerByTitle(String title){
+        for (Marker marker: markers) {
+            if(marker.getTitle().toLowerCase(Locale.ROOT).equals(title.toLowerCase(Locale.ROOT))) {
+                LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                marker.setVisible(true);
+                marker.showInfoWindow();
+                selectedMarker = marker;
+                eventRecView.setAdapter(new ViewAllAdapter(getContext(), Filter.filterByLocation(marker.getTitle()), false));
+                eventRecView.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
     }
 
 

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.example.eventory.ContainerActivity;
 import com.example.eventory.models.CardModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 public class FirebaseManipulations {
 
+    //#TODO replace Tomsarkgh with AllEvents
     public static final List<String> paths = Arrays.asList("Theater","Clubs & pubs","Cinema","Concert","Other", "Tomsarkgh");
    /* public static final List<String> paths = Arrays.asList("Theater", "Opera", "Clubs","Cinema","Concert",
             "Entertainment","Tours","Interesting places","Museums","Conference","Other","Tomsarkgh");*/
@@ -153,6 +155,11 @@ public class FirebaseManipulations {
     }
 
 
+    public static void getEvent(String eventName, String category, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference eventDocRef = db.collection(category).document(eventName);
+        eventDocRef.get().addOnCompleteListener(onCompleteListener);
+    }
 
 
 

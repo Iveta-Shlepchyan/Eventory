@@ -58,6 +58,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
         CategoryModel categoryModel = categoryModelList.get(position);
         holder.category.setText(categoryModel.getCategory());
+        if(categoryModel.getCategory().equals("Tomsarkgh"))
+            holder.category.setText("All events");
 
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(

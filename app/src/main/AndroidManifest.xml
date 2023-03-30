@@ -62,7 +62,17 @@
         <activity
             android:name=".EventPageActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="www.example.eventory.com" />
+                <data android:scheme="https" android:host="https://eventory.page.link" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ViewAllActivity"
             android:configChanges="orientation"

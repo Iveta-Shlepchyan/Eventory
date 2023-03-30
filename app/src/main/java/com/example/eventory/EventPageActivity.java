@@ -1,5 +1,6 @@
 package com.example.eventory;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.eventory.Logic.Convertor;
+import com.example.eventory.Logic.FirebaseManipulations;
 import com.example.eventory.adapters.DateAdapter;
 import com.example.eventory.adapters.ImageAdapter;
 import com.example.eventory.adapters.TagAdapter;
@@ -37,7 +40,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.Gson;
 
 import java.text.ParseException;
@@ -87,15 +99,121 @@ public class EventPageActivity extends AppCompatActivity {
         dateRec = findViewById(R.id.date_time_list);
         tagsRec = findViewById(R.id.tags_recycler);
 
-
         map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapLocation);
 
+
+
+
+        Uri uri = getIntent().getData();
+        if(uri != null){
+            String event_name = uri.getPathSegments().get(uri.getPathSegments().size()-2);
+            String event_category = uri.getLastPathSegment();
+
+            FirebaseManipulations.getEvent(event_name, event_category, task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null && document.exists()) {
+                        event = document.toObject(CardModel.class);
+                        Log.e("Card model", event.getName());
+                        setUpEventPage();
+                    } else {
+                        Log.d("EventPageDynamicLink", "No such document");
+                    }
+                } else {
+                    Log.d("EventPageDynamicLink", "get failed with ", task.getException());
+                }
+            });
+        }else {
+            event = (CardModel) getIntent().getSerializableExtra("info");
+            setUpEventPage();
+        }
+
+
+
+        likeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(event.isLiked()){
+                    event.setLiked(false);
+                    likeBtn.setBackgroundResource(R.drawable.selector_button);
+
+                    for (CardModel likedCard: ContainerActivity.likedCards ) {
+                        if (likedCard.getName().equals(event.getName())){
+                            ContainerActivity.likedCards.remove(likedCard);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    likeBtn.setBackgroundResource(R.drawable.ic_heart_card_pressed);
+                    event.setLiked(true);
+                    ContainerActivity.likedCards.add(event);
+                }
+                Convertor.saveLikes(getApplicationContext());
+            }
+        });
+
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ArrayList<String> tags = event.getTags();
+                tags.retainAll(FirebaseManipulations.paths);
+
+                String deepLink = "https://www.example.eventory.com/event/" + event.getName()+"/"+tags.get(0);
+
+
+                FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.getInstance();
+                Task<ShortDynamicLink> dynamicLink = dynamicLinks.createDynamicLink()
+                        .setLink(Uri.parse(deepLink))
+                        .setDomainUriPrefix("https://eventory.page.link")
+                        .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+                        .buildShortDynamicLink()
+                        .addOnSuccessListener(new OnSuccessListener<ShortDynamicLink>() {
+                            @Override
+                            public void onSuccess(ShortDynamicLink shortDynamicLink) {
+                                Uri shortLink = shortDynamicLink.getShortLink();
+                                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                shareIntent.setType("text/plain");
+                                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Event Name");
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this event I found:  "+ event.getName() +
+                                        "Download the app and join the event: " + shortLink.toString());
+                                startActivity(Intent.createChooser(shareIntent, "Share event"));
+
+                            }
+                        });
+
+            }
+        });
+
+        ticketBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!event.getLink().isEmpty()) {
+                    Uri uriUrl = Uri.parse(event.getLink());
+                    Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+                    launchBrowser.addCategory(Intent.CATEGORY_BROWSABLE);
+                    startActivity(launchBrowser);
+                }
+            }
+        });
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateLikes();
+            }
+        });
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        Log.e("Time taken", String.valueOf(duration) + "ms");
+
+    }
+
+    private void setUpEventPage(){
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM, EEEE HH:mm", Locale.ENGLISH);
-
-
-
-        Intent i = getIntent();
-        event = (CardModel) getIntent().getSerializableExtra("info");
 
         Glide.with(this).load(event.getImg_url()).into(eventImage);
         eventName.setText(event.getName());
@@ -181,8 +299,12 @@ public class EventPageActivity extends AppCompatActivity {
 
 
 
-        if (event.getGeoPoint()==null) map.setMenuVisibility(false);
+        if (event.getGeoPoint()==null || event.getGeoPoint().equals(new GeoPoint(0,0))) {
+            map.setMenuVisibility(false);
+            getSupportFragmentManager().beginTransaction().hide(map).commit();
+        }
         else map.getMapAsync(new OnMapReadyCallback() {
+            @SuppressLint("PotentialBehaviorOverride")
             @Override
             public void onMapReady(GoogleMap googleMap) {
 
@@ -191,9 +313,8 @@ public class EventPageActivity extends AppCompatActivity {
                 googleMap.getUiSettings().setMapToolbarEnabled(false);
 
 
-
                 LatLng marker_position = new LatLng(event.getGeoPoint().getLatitude(), event.getGeoPoint().getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(marker_position));
+                googleMap.addMarker(new MarkerOptions().position(marker_position).icon(Convertor.get_icon(event.getTags())));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker_position, 16));
 
                 try {
@@ -208,95 +329,21 @@ public class EventPageActivity extends AppCompatActivity {
                     Log.e("LocationMap", "Can't find style.", e);
                 }
 
-                googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                    @Override
-                    public void onMapClick(LatLng latLng) {
-                        /*Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
-                        i.putExtra("goToMap", event.getName());
-                        startActivity(i);*/
-                    }
+                googleMap.setOnMapClickListener(latLng -> {
+                    Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
+                    i.putExtra("goToMap", event.getLocation());
+                    startActivity(i);
+                });
+                googleMap.setOnMarkerClickListener(marker -> {
+                    Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
+                    i.putExtra("goToMap", event.getLocation());
+                    startActivity(i);
+                    return false;
                 });
 
 
             }
         });
-
-
-
-        //FIXME toolbar fix (if null remove), like fix
-        //FIXME map fragment fix, filter or view all, (maybe image swipe to dismiss & swipe to other image)
-
-        //TODO DONE -- select click fix, parse fix, image zoom, map add, tags rec
-
-
-
-        likeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(event.isLiked()){
-                    event.setLiked(false);
-                    likeBtn.setBackgroundResource(R.drawable.selector_button);
-
-                    for (CardModel likedCard: ContainerActivity.likedCards ) {
-                        if (likedCard.getName().equals(event.getName())){
-                            ContainerActivity.likedCards.remove(likedCard);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    likeBtn.setBackgroundResource(R.drawable.ic_heart_card_pressed);
-                    event.setLiked(true);
-                    ContainerActivity.likedCards.add(event);
-                }
-                Convertor.saveLikes(getApplicationContext());
-            }
-        });
-
-        shareBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //TODO add dynamic link + shareInent
-                /*String link = "https://example.eventory.link/event?id=" + event.getName();
-                DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                        .setLink(Uri.parse(link))
-                        .setDynamicLinkDomain("example.eventory.page.link")
-                        .buildDynamicLink();*/
-
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Event Name");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this event I found: Event Name - Event Description - Event Location - Event Date and Time." +
-                        " Download the app and join the event :  https://app_link ");
-                startActivity(Intent.createChooser(shareIntent, "Share event"));
-                }
-
-        });
-
-        ticketBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!event.getLink().isEmpty()) {
-                    Uri uriUrl = Uri.parse(event.getLink());
-                    Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
-                    launchBrowser.addCategory(Intent.CATEGORY_BROWSABLE);
-                    startActivity(launchBrowser);
-                }
-            }
-        });
-
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateLikes();
-            }
-        });
-
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        Log.e("Time taken", String.valueOf(duration) + "ms");
-
     }
 
     @Override
@@ -350,6 +397,9 @@ public class EventPageActivity extends AppCompatActivity {
                 return priceStr;
         }
     }
+
+
+
 
 
 }

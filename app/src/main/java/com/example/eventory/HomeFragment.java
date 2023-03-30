@@ -63,7 +63,6 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
         buildItemList();
 
 
-        //FIXME home fragment
         TextView search = root.findViewById(R.id.search);
         search.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +99,7 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
                 }
             });
         }
+
     }
 
     private void buildSubItemList(String path, Callback callback) {
@@ -136,7 +136,9 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
                                                     break;
                                                 }
                                             }
-                                            if(!match)ContainerActivity.geo_points.add(new SerializableGeoPoint(geoPoint, cardModel.getLocation(), cardModel.getTags().get(0)));
+                                            ArrayList<String> tags = new ArrayList<>(cardModel.getTags());
+                                            tags.retainAll(FirebaseManipulations.paths);
+                                            if(!match)ContainerActivity.geo_points.add(new SerializableGeoPoint(geoPoint, cardModel.getLocation(), tags.get(0)));
                                         }
                                     }catch (NullPointerException nullEx){
                                         Log.e("HomeFragment", cardModel.getName()+ " "+ nullEx.getMessage());
@@ -151,6 +153,9 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
                     }
                 });
     }
+
+
+
 
 
 }

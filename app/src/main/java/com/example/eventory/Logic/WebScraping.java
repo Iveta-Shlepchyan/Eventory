@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class WebScraping {
         runnable = new Runnable() {
             @Override
             public void run() {
-//                getTKT();
+                getTKT();
                 getTomsarkgh();
             }
         };
@@ -110,7 +111,7 @@ public class WebScraping {
             Elements images = event.getElementsByAttributeValueContaining("href", "/thumbnails/Photo/bigimage/");
 
 
-            eventInfo.getPrices().addAll(extractPrice(eventInfo.getDescription()));
+            eventInfo.getPrices().addAll(extractPrice(eventInfo.getDescription(), false));
             //if there is more than one matching tag (ex : "for kids", "free", "comedy")
             //(unfortunately tomsarkgh provide only one tag)
             /*HashSet<String> tags = new HashSet<String>();
@@ -168,18 +169,15 @@ public class WebScraping {
         for (Map.Entry<String, String> tkt_link: TKT_links.entrySet()) {
             try {
                 doc = Jsoup.connect(tkt_link.getValue()).get();
-                Elements hrefs = doc.getElementsByAttributeValueContaining("href", "/web/event/event_id");
-                LinkedHashSet<String> eventLinks = new LinkedHashSet<String>();
-                for (Element href : hrefs) {
-                    eventLinks.add("https://tkt.am/en//eid/"+ extractID(href.absUrl("href")));
+                Elements cards = doc.getElementsByClass("more__item");
+                for (Element card: cards) {
+                    Element href = card.getElementsByAttributeValueContaining("href", "/web/event/event_id").get(0);
+                    String link = "https://tkt.am/en//eid/"+ extractID(href.absUrl("href"));
+                    String price = card.getElementsByClass("more__info-text").last().text();
+                    CardModel event = getTKTEventInfo(link, tkt_link.getKey(), price);
+                    if(eventIsValid(event)) FirebaseManipulations.addToFirebase(event);
                 }
-                Log.e("getTKT", eventLinks.toString());
-                for (String eventLink : eventLinks) {
 
-                    CardModel event = getTKTEventInfo(eventLink, tkt_link.getKey());
-//                    if(eventIsValid(event)) FirebaseManipulations.addToFirebase(event);
-
-                }
             } catch (IOException e) {
                 Log.e("Jsoup/getTKT", "Connection problem: " + e.getMessage());
             }
@@ -188,7 +186,7 @@ public class WebScraping {
 
     }
 
-    private CardModel getTKTEventInfo(String link, String tag) {
+    private CardModel getTKTEventInfo(String link, String tag, String price) {
 
         Document event = null;
         try {
@@ -197,21 +195,36 @@ public class WebScraping {
             Log.e("Jsoup", "Connection problem");
         }
         CardModel eventInfo = new CardModel();
+
         try {
             eventInfo.setLink(link);
-
             eventInfo.setName(event.getElementsByClass("info__title title").get(0).text());
-            eventInfo.setImg_url("https://tkt.am"+ event.getElementsByClass("event-image").attr("src"));
-            eventInfo.setLocation(event.getElementsByClass("place__place-more").get(0).text().split(",")[0]);
-            //#TODO get prices, get dates, get description
-
-
-            Log.e("getTKT", eventInfo.getLocation());
-
+            String img_url = "https://tkt.am"+ event.getElementsByClass("event-image").attr("src");
+            eventInfo.setImg_url(img_url);
+            eventInfo.setMore_images(new ArrayList<String>(Collections.singleton(img_url)));
+            String full_address = event.getElementsByClass("place__place-more").get(0).text();
+            eventInfo.setGeoPoint(getLocationFromAddress(full_address, context));
+            eventInfo.setLocation(full_address.split(",")[0]);
+            eventInfo.setDates(new ArrayList<>());
+            eventInfo.getDates().add(new Date(event.getElementsByClass("info__date").text()));
+            eventInfo.setPrices(new ArrayList<>(extractPrice(price, true)));
             ArrayList<String> tags = new ArrayList<>();
             if(tag.equals("For kids")) tags.add("Theater");
             tags.add(tag);
             eventInfo.setTags(tags);
+
+            eventInfo.setDescription(event.getElementsByClass("info__inner").last().wholeText().trim());
+
+            //#TODO map description en, am, ru
+            if(eventInfo.getDescription().isEmpty()){
+                Document eventRu = Jsoup.connect(link.replace("en", "ru")).get();
+                eventInfo.setDescription(eventRu.getElementsByClass("info__inner").last().wholeText().trim());
+            }
+            if(eventInfo.getDescription().isEmpty()){
+                Document eventAm = Jsoup.connect(link.replace("en", "am")).get();
+                eventInfo.setDescription(eventAm.getElementsByClass("info__inner").last().wholeText().trim());
+            }
+
 
         }catch (Exception e){
             Log.e("Jsoup/getTKTEventInfo", link+ "  " + e.getMessage());
@@ -236,7 +249,7 @@ public class WebScraping {
     }
 
 
-    private TreeSet<Integer> extractPrice(String description){
+    private TreeSet<Integer> extractPrice(String description, boolean tkt){
         description = description.replaceAll("\\." , "");
         description = description.replaceAll("\\s" , "");
 
@@ -247,9 +260,11 @@ public class WebScraping {
         while (matcher.find()) {
             int price = Integer.parseInt(matcher.group().replaceAll("[\\.,\\s]", ""));
             if (price % 100 == 0) {
+                if(tkt) price /= 100;
                 prices.add(price);
             }
         }
+
         return prices;
     }
 
@@ -299,6 +314,7 @@ public class WebScraping {
         }
         return gp;
     }
+
 
 
 }

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.widget.ArrayAdapter;
 
 import androidx.core.content.ContextCompat;
 
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +63,13 @@ public class Convertor {
             default:
                 return ContainerActivity.pins.get(5);
         }
+    }
+
+    public static BitmapDescriptor get_icon(Collection<String> tags){
+
+        ArrayList<String>  eventTags = new ArrayList<>(tags);
+        eventTags.retainAll(FirebaseManipulations.paths);
+        return get_icon(eventTags.get(0));
     }
 
     public static ArrayList<BitmapDescriptor> map_pins(Context context){

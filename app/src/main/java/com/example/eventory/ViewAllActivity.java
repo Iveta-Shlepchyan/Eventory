@@ -96,12 +96,14 @@ public class ViewAllActivity extends AppCompatActivity {
             tagsRec.setHasFixedSize(true);
 
             String category = getIntent().getStringExtra("category");
-            if(category!=null) {
+
+            if(category!=null && !category.equals("Tomsarkgh")) {
                 filteredList.clear();
                 tagAdapter.selected_tags.add(category);
                 filters.filterByTag(category, true, tagAdapter);
                 tagSwap(tagAdapter.getTags().indexOf(category), true);
             }
+            else filters.reset();
             String location = getIntent().getStringExtra("location");
             if(location != null){
                 filteredList.clear();

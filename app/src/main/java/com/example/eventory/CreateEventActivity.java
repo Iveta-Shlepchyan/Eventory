@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 import com.example.eventory.Logic.Convertor;
 import com.example.eventory.adapters.DateAdapter;
 import com.example.eventory.adapters.ImageAdapter;
+import com.example.eventory.adapters.TagAdapter;
 import com.example.eventory.models.CardModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.yalantis.ucrop.UCrop;
 
@@ -46,6 +49,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -97,6 +101,11 @@ public class CreateEventActivity extends AppCompatActivity implements DateTimePi
         moreImagesRec = findViewById(R.id.more_images_recycler);
         dateRec = findViewById(R.id.date_time_list);
         tagsRec = findViewById(R.id.tags_recycler);
+
+        tagsRec.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        TagAdapter tagAdapter = new TagAdapter(this, new ArrayList<String>(Collections.singleton("User Event")), false);
+        tagsRec.setAdapter(tagAdapter);
+        tagsRec.setHasFixedSize(true);
 
 
         map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapLocation);
@@ -279,6 +288,7 @@ public class CreateEventActivity extends AppCompatActivity implements DateTimePi
         setUpMap(map,latLng);
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     private void setUpMap(SupportMapFragment map, LatLng latLng) {
 
 
@@ -296,6 +306,12 @@ public class CreateEventActivity extends AppCompatActivity implements DateTimePi
                 SetLocationDialog locationDialog = new SetLocationDialog(CreateEventActivity.this, latLng);
                 locationDialog.setLocationPressedListener(CreateEventActivity.this);
                 locationDialog.show(getSupportFragmentManager(), "locationDialog");
+            });
+            googleMap.setOnMarkerClickListener(marker -> {
+                SetLocationDialog locationDialog = new SetLocationDialog(CreateEventActivity.this, latLng);
+                locationDialog.setLocationPressedListener(CreateEventActivity.this);
+                locationDialog.show(getSupportFragmentManager(), "locationDialog");
+                return false;
             });
 
         });
