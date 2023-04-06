@@ -74,10 +74,12 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
 
 
         if(isMapFragment){
-            holder.tag.getBackground().setAlpha(180);
+            holder.tag.getBackground().setAlpha(240);
             if(selected_tags.contains(tags.get(position))){
-                holder.tag.getBackground().setTint(context.getResources().getColor(Convertor.categories.get(tags.get(position))));
-                holder.tag.setTextColor(context.getResources().getColor(R.color.white));
+                /*holder.tag.getBackground().setTint(context.getResources().getColor(Convertor.categories.get(tags.get(position))));
+                holder.tag.setTextColor(context.getResources().getColor(R.color.white));*/
+                holder.tag.getBackground().setTint(context.getResources().getColor(R.color.white));
+                holder.tag.setTextColor(context.getResources().getColor(Convertor.categories.get(tags.get(position))));
             }
             else{
                 holder.tag.getBackground().setTint(context.getResources().getColor(R.color.white));
@@ -115,7 +117,6 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
 
 
                 }
-
 
             }
         });

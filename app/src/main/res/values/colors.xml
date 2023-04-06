@@ -25,13 +25,12 @@
 
     <color name="purple">#8167e2</color>
 
-    <color name="Theater">#6A45A6</color>
-    <color name="Cinema">#F53232</color>
-    <color name="Concert">#F55B49</color>
-    <color name="Clubs">#5043BB</color>
-    <color name="Comedy">#FFC107</color>
+    <color name="Theater">#7B50B9</color>
+    <color name="Cinema">#EE386F</color>
+    <color name="Concert">#F5B02C</color>
+    <color name="Clubs">#FD623F</color>
     <color name="Tours">#4CAF50</color>
     <color name="InterestingPlaces">#FF8D07</color>
     <color name="Entertainment">#FE6231</color>
-    <color name="Other">#A2A0A5</color>
+    <color name="Other">#B9BBBB</color>
 </resources>
