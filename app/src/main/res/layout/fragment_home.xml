@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+
         <TextView
             android:id="@+id/search"
             android:layout_width="match_parent"
@@ -20,7 +22,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginEnd="22dp"
             android:background="@drawable/bg_input"
-            android:backgroundTint="#F0F0F0"
+            android:backgroundTint="@color/search_bg"
             android:drawableLeft="@drawable/ic_search"
             android:drawableRight="@drawable/ic_filter"
             android:drawablePadding="10dp"
@@ -42,70 +44,6 @@
             android:layout_height="match_parent">
 
 
-            <LinearLayout
-                android:id="@+id/events"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="vertical"
-                    android:overScrollMode="never">
-
-
-                    <!--<TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="23dp"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="@string/browse_by_category"
-                        android:textColor="@color/text_black"
-                        android:textSize="18sp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:overScrollMode="never"
-                        android:scrollbars="none">
-
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <androidx.cardview.widget.CardView
-                                android:layout_width="150dp"
-                                android:layout_height="100dp"
-                                android:layout_marginLeft="22dp"
-                                android:layout_marginTop="20dp"
-                                android:layout_marginRight="10dp"
-                                android:layout_marginBottom="20dp"
-                                app:cardBackgroundColor="@color/eerie_black"
-                                app:cardCornerRadius="15dp"
-                                app:cardElevation="0dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="15dp"
-                                    android:layout_marginTop="70dp"
-                                    android:text="@string/cinema"
-                                    android:textColor="@color/white" />
-
-                            </androidx.cardview.widget.CardView>
-
-
-                        </LinearLayout>
-
-                    </HorizontalScrollView>-->
-                </LinearLayout>
-
-              <!--  <View style="@style/Divider"/>-->
-
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/container_list"
                     android:layout_width="match_parent"
@@ -122,12 +60,21 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
 
-
-            </LinearLayout>
-
-
         </FrameLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/loadingPB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="800dp"
+                android:layout_centerInParent="true"
+                android:visibility="visible" />
+        </RelativeLayout>
 
     </FrameLayout>
 </androidx.core.widget.NestedScrollView>

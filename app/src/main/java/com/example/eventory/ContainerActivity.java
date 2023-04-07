@@ -24,6 +24,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -59,7 +61,6 @@ public class ContainerActivity extends AppCompatActivity {
     public static CardModel lastLikedEvent;
 
     public interface IOnBackPressed {
-
         boolean onBackPressed();
     }
 
@@ -82,12 +83,18 @@ public class ContainerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_container);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+
         bottomNavMenu = findViewById(R.id.bottomNavigationView);
 
-        String marker = getIntent().getStringExtra("goToMap");
-        if(marker != null){
+        String fragment = getIntent().getStringExtra("fragment");
+
+        if(fragment != null && fragment.equals("profile")){
+            getSupportFragmentManager().beginTransaction().replace(R.id.container,profileFragment).commit();
+            bottomNavMenu.getMenu().findItem(R.id.profile).setChecked(true);
+        }
+        else if(fragment != null){
             Bundle bundle = new Bundle();
-            bundle.putString("marker", marker);
+            bundle.putString("marker", fragment);
             mapFragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.container,mapFragment).commit();
             bottomNavMenu.getMenu().findItem(R.id.map).setChecked(true);
@@ -102,6 +109,7 @@ public class ContainerActivity extends AppCompatActivity {
             Gson gson = new Gson();
             likedCards = gson.fromJson(json, listType);
         }
+
 
         MapsInitializer.initialize(getApplicationContext());
         pins.addAll(Convertor.map_pins(ContainerActivity.this));
@@ -129,9 +137,9 @@ public class ContainerActivity extends AppCompatActivity {
                         LikeFragment likeFragment = new LikeFragment();
                         getSupportFragmentManager().beginTransaction().replace(R.id.container,likeFragment).commit();
                         return true;
-                    case R.id.ticket:
+                    /*case R.id.ticket:
                         getSupportFragmentManager().beginTransaction().replace(R.id.container,ticketFragment).commit();
-                        return true;
+                        return true;*/
                     case R.id.profile:
                         getSupportFragmentManager().beginTransaction().replace(R.id.container,profileFragment).commit();
                         return true;
@@ -143,57 +151,4 @@ public class ContainerActivity extends AppCompatActivity {
 
 
     }
-
-    /*private void getAllEvents(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("AllEvents")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                CardModel cardModel = document.toObject(CardModel.class);
-                                if(!ContainerActivity.likedCards.isEmpty()){
-                                    for (CardModel likedCard: ContainerActivity.likedCards ) {
-                                        if (likedCard.getName().equals(cardModel.getName()))
-                                            cardModel.setLiked(true);
-                                    }
-                                }
-                                ContainerActivity.allEvent.add(cardModel);
-
-                                try {
-                                    if(!cardModel.getTags().isEmpty())
-                                        ContainerActivity.tags_set.addAll(cardModel.getTags());
-                                    if(!cardModel.getLocation().isEmpty())
-                                        ContainerActivity.locations_set.add(cardModel.getLocation());
-                                    if(cardModel.getGeoPoint() != null) {
-                                        GeoPoint geoPoint = cardModel.getGeoPoint();
-                                        boolean match = false;
-                                        for (SerializableGeoPoint gp: ContainerActivity.geo_points) {
-                                            if(geoPoint.equals(gp.getGeoPoint())) {
-                                                match = true;
-                                                break;
-                                            }
-                                        }
-                                        if(!match)ContainerActivity.geo_points.add(new SerializableGeoPoint(geoPoint, cardModel.getLocation(), cardModel.getTags().get(0)));
-                                    }
-                                }catch (NullPointerException nullEx){
-                                    Log.e("HomeFragment", cardModel.getName()+ " "+ nullEx.getMessage());
-                                }
-                            }
-                        }
-                        else {
-                            Toast.makeText(ContainerActivity.this,"Error"+task.getException(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-    }*/
-
-
-
-
 }

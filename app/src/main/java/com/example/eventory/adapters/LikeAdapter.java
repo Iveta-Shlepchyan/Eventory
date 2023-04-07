@@ -32,10 +32,19 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.ViewHolder>{
 
     private Context context;
     private List<CardModel> cardModelList;
+    private LikeAdapter.onChangeListener onChangeListener;
 
     public LikeAdapter(Context context, List<CardModel> cardModelList) {
         this.context = context;
         this.cardModelList = cardModelList;
+    }
+
+    public interface onChangeListener {
+        void onChange();
+    }
+
+    public void setOnNoItemListener(LikeAdapter.onChangeListener onChangeListener){
+        this.onChangeListener = onChangeListener;
     }
 
 
@@ -71,6 +80,7 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.ViewHolder>{
                 ContainerActivity.likedCards.remove(cardModelList.get(holder.getPosition()));
                 notifyItemRemoved(holder.getPosition());
                 Convertor.saveLikes(context.getApplicationContext());
+                onChangeListener.onChange();
             }
         });
 

@@ -1,15 +1,11 @@
 package com.example.eventory;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.location.Address;
-import android.location.Geocoder;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.View;
@@ -19,9 +15,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,24 +36,21 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class EventPageActivity extends AppCompatActivity {
@@ -65,12 +58,15 @@ public class EventPageActivity extends AppCompatActivity {
     ImageView eventImage;
     TextView eventName, eventDescription,eventDateTime, eventDuration, eventGenre,
             eventMinAge, eventPlace, eventPrice;
-    ImageButton backBtn, likeBtn, shareBtn;
+    AppCompatButton backBtn, likeBtn, shareBtn;
     Button ticketBtn;
     RecyclerView moreImagesRec, dateRec, tagsRec;
     SupportMapFragment map;
 
     CardModel event;
+
+    Drawable like_pressed;
+    Drawable like;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +75,9 @@ public class EventPageActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         long startTime = System.currentTimeMillis();
+
+        like_pressed = getResources().getDrawable(R.drawable.ic_heart_card_pressed_b);
+        like = getResources().getDrawable(R.drawable.ic_heart_card_black_b);
 
         eventImage =findViewById(R.id.eventImage);
         eventName = findViewById(R.id.eventName);
@@ -101,7 +100,28 @@ public class EventPageActivity extends AppCompatActivity {
 
         map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapLocation);
 
+        AppBarLayout appBarLayout = findViewById(R.id.main_appbar);
 
+
+
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                int totalScrollRange = appBarLayout.getTotalScrollRange();
+                if (verticalOffset + totalScrollRange == 0) {
+                    // Collapsed
+                    backBtn.setBackground(null);
+                    likeBtn.setBackground(null);
+                    shareBtn.setBackground(null);
+
+                } else {
+                    // Not collapsed
+                    backBtn.setBackgroundResource(R.drawable.bg_filter_btn);
+                    likeBtn.setBackgroundResource(R.drawable.bg_filter_btn);
+                    shareBtn.setBackgroundResource(R.drawable.bg_filter_btn);
+                }
+            }
+        });
 
 
         Uri uri = getIntent().getData();
@@ -135,7 +155,8 @@ public class EventPageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(event.isLiked()){
                     event.setLiked(false);
-                    likeBtn.setBackgroundResource(R.drawable.selector_button);
+
+                    likeBtn.setCompoundDrawablesWithIntrinsicBounds(like, null, null, null);
 
                     for (CardModel likedCard: ContainerActivity.likedCards ) {
                         if (likedCard.getName().equals(event.getName())){
@@ -145,8 +166,8 @@ public class EventPageActivity extends AppCompatActivity {
                     }
                 }
                 else {
-                    likeBtn.setBackgroundResource(R.drawable.ic_heart_card_pressed);
                     event.setLiked(true);
+                    likeBtn.setCompoundDrawablesWithIntrinsicBounds(like_pressed, null, null, null);
                     ContainerActivity.likedCards.add(event);
                 }
                 Convertor.saveLikes(getApplicationContext());
@@ -177,12 +198,11 @@ public class EventPageActivity extends AppCompatActivity {
                                 shareIntent.setType("text/plain");
                                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Event Name");
                                 shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this event I found:  "+ event.getName() +
-                                        "Download the app and join the event: " + shortLink.toString());
+                                        ". \nDownload the app and join the event: " + shortLink.toString());
                                 startActivity(Intent.createChooser(shareIntent, "Share event"));
 
                             }
                         });
-
             }
         });
 
@@ -229,7 +249,7 @@ public class EventPageActivity extends AppCompatActivity {
         setTextAndVisibility(eventMinAge, event.getMin_age());
         setTextAndVisibility(eventPrice, priceToString(event.getPrices()));
         setTextAndVisibility(eventPlace, event.getLocation());
-        if(event.isLiked()) likeBtn.setBackgroundResource(R.drawable.ic_heart_card_pressed);
+        if(event.isLiked()) likeBtn.setCompoundDrawablesWithIntrinsicBounds(like_pressed, null, null, null);
 
 
         tagsRec.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -331,12 +351,12 @@ public class EventPageActivity extends AppCompatActivity {
 
                 googleMap.setOnMapClickListener(latLng -> {
                     Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
-                    i.putExtra("goToMap", event.getLocation());
+                    i.putExtra("fragment", event.getLocation());
                     startActivity(i);
                 });
                 googleMap.setOnMarkerClickListener(marker -> {
                     Intent i = new Intent(EventPageActivity.this, ContainerActivity.class);
-                    i.putExtra("goToMap", event.getLocation());
+                    i.putExtra("fragment", event.getLocation());
                     startActivity(i);
                     return false;
                 });

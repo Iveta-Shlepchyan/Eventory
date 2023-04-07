@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
+import com.example.eventory.Logic.Convertor;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,6 +43,7 @@ public class LoginActivity extends Activity {
     }
 
     public void go_back(View view) {
+        finish();
     }
 
     public void signIn(View view) {
@@ -63,10 +65,6 @@ public class LoginActivity extends Activity {
         else if(password.isEmpty() || password.length() < 7){
             showError(inputPassword, "Password must be at least 7 characters long.");
         }
-        //FIXME loginActivity SuperAdmin
-//        else if(email.matches("eventory@skiff.com") && password.matches("F@YeY!App")){
-//            startActivity(new Intent(LoginActivity.this, SuperAdmin.class));
-//        }
         else{
             progressDialog.setMessage("Please wait. Login...");
             progressDialog.setTitle("Login");
@@ -81,6 +79,7 @@ public class LoginActivity extends Activity {
                         progressDialog.dismiss();
                         Intent intent = new Intent(LoginActivity.this, ContainerActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("fragment", "profile");
                         startActivity(intent);
                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                     }else{

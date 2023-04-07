@@ -16,6 +16,7 @@
     <color name="searchHint">#BDBDBD</color>
     <color name="input">#FAFAFA</color>
     <color name="darker_input">#F5F5F5</color>
+    <color name="search_bg">#F0F0F0</color>
     <color name="icon_grey">#323232</color>
     <color name="orange_soda">#FF583E</color>
     <color name="background">#F7F7F7</color>
@@ -33,4 +34,5 @@
     <color name="InterestingPlaces">#FF8D07</color>
     <color name="Entertainment">#FE6231</color>
     <color name="Other">#B9BBBB</color>
+
 </resources>

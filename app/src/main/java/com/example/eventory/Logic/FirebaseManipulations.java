@@ -11,14 +11,20 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.model.Document;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -161,7 +167,81 @@ public class FirebaseManipulations {
         eventDocRef.get().addOnCompleteListener(onCompleteListener);
     }
 
+    /*public static void updateFavs(String json) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            CollectionReference favoritesCollection = db.collection("User's favorites");
+            favoritesCollection.document(userId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                // Update the existing document with the new JSON string
+                                favoritesCollection.document(userId)
+                                        .update("favorites", json)
+                                        .addOnSuccessListener(aVoid -> Log.d("Firebase / update favorites", "Document updated successfully"))
+                                        .addOnFailureListener(e -> Log.e("Firebase / update favorites", "Error updating document", e));
+                            } else {
+                                // Create a new document with the JSON string
+                                Map<String, String> data = new HashMap<>();
+                                data.put("favorites", json);
+                                favoritesCollection.document(userId)
+                                        .set(data)
+                                        .addOnSuccessListener(aVoid -> Log.d("Firebase / update favorites", "Document created successfully"))
+                                        .addOnFailureListener(e -> Log.e("Firebase / update favorites", "Error creating document", e));
+                            }
+                        } else {
+                            Log.e("Firebase / update favorites", "Error getting document", task.getException());
+                        }
+                    });
+        }
+    }*/
+
+    public static void updateFavs(String json) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            CollectionReference favoritesCollection = db.collection("User's favorites");
+
+            Map<String, String> data = new HashMap<>();
+            data.put("favorites", json);
+            favoritesCollection.document(userId).delete();
+            favoritesCollection.document(userId).set(data);
+            Log.e("removed", "update");
+            }
+    }
 
 
-
+    public static void getFavs() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DocumentReference docRef = db.collection("User's favorites").document(user.getUid()); // get a reference to the user's document
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        // get the JSON data from the document
+                        String json = documentSnapshot.get("favorites").toString();
+                        Type listType = new TypeToken<List<CardModel>>() {}.getType();
+                        Gson gson = new Gson();
+                        ContainerActivity.likedCards = gson.fromJson(json, listType);
+                        // use the JSON data as needed
+                        Log.d("Firebase / get favorites", "JSON data: " + json);
+                    } else {
+                        Log.e("Firebase / get favorites", "No such document");
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Firebase / get favorites", "Error getting document: " + e.getMessage());
+                }
+            });
+        }
+    }
 }

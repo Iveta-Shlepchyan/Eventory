@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -19,7 +20,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class GoogleSignInActivity extends MainActivity{
+public class GoogleSignInActivity extends RegisterActivity {
 
     private GoogleSignInClient gsclient;
 
@@ -67,9 +68,9 @@ public class GoogleSignInActivity extends MainActivity{
 
                                         if(task.isSuccessful())
                                         {
-                                            startActivity(new Intent(GoogleSignInActivity.this
-                                                    , ContainerActivity.class)
-                                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                            Intent i = new Intent(GoogleSignInActivity.this, ContainerActivity.class);
+                                            i.putExtra("fragment", "profile");
+                                            startActivity(i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                                             displayToast("Firebase authentication successful");
                                         }
                                         else

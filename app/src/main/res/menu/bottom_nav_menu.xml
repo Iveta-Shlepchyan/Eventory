@@ -14,10 +14,10 @@
         android:id="@+id/like"
         android:icon="@drawable/navigation_heart_selector"
         android:title="" />
-    <item
+    <!--<item
         android:id="@+id/ticket"
         android:icon="@drawable/navigation_ticket_selector"
-        android:title="" />
+        android:title="" />-->
     <item
         android:id="@+id/profile"
         android:icon="@drawable/navigation_profile_selector"

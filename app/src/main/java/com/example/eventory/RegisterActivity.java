@@ -52,8 +52,9 @@ public class RegisterActivity extends Activity {
 
         if(mUser!=null)
         {
-            startActivity(new Intent(RegisterActivity.this, ContainerActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            Intent i = new Intent(RegisterActivity.this, ContainerActivity.class);
+            i.putExtra("fragment", "profile");
+            startActivity(i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
 
     }
@@ -63,6 +64,7 @@ public class RegisterActivity extends Activity {
 
 
     public void go_back(View view) {
+        finish();
     }
 
     public void signUp(View view) {
@@ -71,6 +73,7 @@ public class RegisterActivity extends Activity {
 
     public void google_reg(View view) {
         startActivity(new Intent(RegisterActivity.this, GoogleSignInActivity.class));
+
     }
 
     public void facebook_reg(View view) {
@@ -111,6 +114,7 @@ public class RegisterActivity extends Activity {
                         progressDialog.dismiss();
                         Intent intent = new Intent(RegisterActivity.this, ContainerActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("fragment", "profile");
                         startActivity(intent);
                         Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                     }else{

@@ -6,11 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import androidx.core.content.ContextCompat;
 
 import com.example.eventory.ContainerActivity;
+import com.example.eventory.LoginActivity;
 import com.example.eventory.R;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -25,6 +27,7 @@ public class Convertor {
 
     public static void saveLikes(Context context){
         Gson gson = new Gson();
+        Log.e("Convertor cards", ContainerActivity.likedCards.toString());
         String json = gson.toJson(ContainerActivity.likedCards);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -32,6 +35,8 @@ public class Convertor {
 
         editor.putString("card_models", json);
         editor.apply();
+
+        FirebaseManipulations.updateFavs(json);
     }
 
     public static final HashMap<String, Integer> categories = new HashMap<String, Integer>(){{

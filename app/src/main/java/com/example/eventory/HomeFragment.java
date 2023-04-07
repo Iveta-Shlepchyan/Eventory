@@ -3,10 +3,13 @@ package com.example.eventory;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +43,8 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
 
     RecyclerView recContainer;
 
+    private ProgressBar loadingPB;
+
     @Override
     public boolean onBackPressed() {
         return true;
@@ -60,6 +65,10 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
 
         recContainer = root.findViewById(R.id.container_list);
         recContainer.setLayoutManager(new LinearLayoutManager(getActivity()));
+        loadingPB = root.findViewById(R.id.loadingPB);
+        loadingPB.setVisibility(View.VISIBLE);
+        placeInCenter(loadingPB);
+
         buildItemList();
 
 
@@ -72,12 +81,10 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
         });
 
 
+
+
         return root;
     }
-
-
-
-
 
 
     private void buildItemList() {
@@ -96,9 +103,11 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
                         }
                         recContainer.setAdapter(new CategoryAdapter(categoryModelList));
                     }
+                    loadingPB.setVisibility(View.GONE);
                 }
             });
         }
+
 
     }
 
@@ -154,8 +163,12 @@ public class HomeFragment extends Fragment implements ContainerActivity.IOnBackP
                 });
     }
 
-
-
-
+    private void placeInCenter(ProgressBar loadingPB) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) loadingPB.getLayoutParams();
+        layoutParams.topMargin = displayMetrics.heightPixels;
+        loadingPB.setLayoutParams(layoutParams);
+    }
 
 }

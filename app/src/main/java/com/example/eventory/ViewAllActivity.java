@@ -191,7 +191,7 @@ public class ViewAllActivity extends AppCompatActivity {
     public int calculate_columns(Context context) {
         float px = getWindowManager().getDefaultDisplay().getWidth();
         float dp = px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return (int) dp / 150;
+        return (int) dp / 200;
     }
 
     private void tagSwap(int position, boolean selected){

@@ -30,17 +30,20 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".OnBoardingActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".RegisterActivity"
@@ -64,7 +67,6 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
