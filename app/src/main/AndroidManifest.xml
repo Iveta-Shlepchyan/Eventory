@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.eventory">
+    package="event.app.eventory">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +31,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <activity
-            android:name=".SplashActivity"
+            android:name="event.app.eventory.SplashActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:screenOrientation="portrait">
@@ -41,29 +41,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".OnBoardingActivity"
+            android:name="event.app.eventory.OnBoardingActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".RegisterActivity"
+            android:name="event.app.eventory.RegisterActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".LoginActivity"
+            android:name="event.app.eventory.LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GoogleSignInActivity"
+            android:name="event.app.eventory.GoogleSignInActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ContainerActivity"
+            android:name="event.app.eventory.ContainerActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".EventPageActivity"
+            android:name="event.app.eventory.EventPageActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -76,15 +76,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ViewAllActivity"
+            android:name="event.app.eventory.ViewAllActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".YourEventsActivity"
+            android:name="event.app.eventory.YourEventsActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".CreateEventActivity"
+            android:name="event.app.eventory.CreateEventActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity

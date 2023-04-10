@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".LikeFragment">
+    tools:context="event.app.eventory.LikeFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/like_recView"

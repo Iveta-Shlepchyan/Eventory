@@ -33,6 +33,43 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533532109720:android:b29834859f0dfb6a3b59ed",
+        "android_client_info": {
+          "package_name": "event.app.eventory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "533532109720-o7rnde9hivuirp4a4arci5g1vc6hu9m8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "event.app.eventory",
+            "certificate_hash": "38734c805034c3643fd4fa24f4a702608f554d36"
+          }
+        },
+        {
+          "client_id": "533532109720-gtesokg999puel7c8tvpa6dnhk3b28h5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMptgFgW9CPDcjuv5D2h-VPi1-adEydzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "533532109720-gtesokg999puel7c8tvpa6dnhk3b28h5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
